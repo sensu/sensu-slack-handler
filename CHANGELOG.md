@@ -7,6 +7,14 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [0.0.1] - 2018-08-17
+
+### Added
+- More readme instructions
+
+### Changed
+- Repo name `slack_handler` to `slack-handler`
+
 ## [0.0.0] - 2018-08-17
 
 ### Added
