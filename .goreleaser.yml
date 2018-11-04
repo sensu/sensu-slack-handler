@@ -44,17 +44,10 @@ builds:
         goarch: mips64le
 
 archive:
+  name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
   format: tar.gz
   files:
     - LICENSE
     - README.md
     - CHANGELOG.md
-
-  # You can change the name of the GitHub release.
-  # This is parsed with the Go template engine and the following variables
-  # are available:
-  # - ProjectName
-  # - Tag
-  # - Version (Git tag without `v` prefix)
-  # Default is ``
-  #name_template: "{{.ProjectName}}-v{{.Version}}"
+    - bin/*

@@ -32,8 +32,8 @@ func main() {
 
 func configureRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "handler-slack",
-		Short: "a slack handler built for use with sensu",
+		Use:   "slack-handler",
+		Short: "The Sensu Go Slack handler for notifying a channel",
 		RunE:  run,
 	}
 

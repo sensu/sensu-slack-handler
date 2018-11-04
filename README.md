@@ -1,4 +1,4 @@
-# slack-handler
+# Sensu Go Slack Handler
 
 The Sensu slack handler is a [Sensu Event Handler][1] that sends event data to
 a configured Slack channel.
@@ -15,37 +15,61 @@ go build -o /usr/local/bin/slack-handler main.go
 
 ## Configuration
 
-Example Sensu 2.x handler definition:
-```
+Example Sensu Go handler definition:
+
+slack-handler.json
+
+```json
 {
-  "name": "slack",
-  "type": "pipe",
-  "command": "slack-handler --channel '#general' --timeout 20 --username 'sensu' --webhook-url 'https://www.webhook-url-for-slack.com'"
+    "type": "Handler",
+    "spec": {
+        "name": "slack",
+        "type": "pipe",
+        "command": "slack-handler --channel '#general' --timeout 20 --username 'sensu' --webhook-url 'https://www.webhook-url-for-slack.com'",
+        "timeout": 10,
+        "filters": [
+            "is_incident"
+        ],
+        "namespace": "default"
+    }
 }
 ```
 
+`sensuctl create -f slack-handler.json`
+
 Example Sensu 2.x check definition:
-```
+
+```json
 {
-  "name": "check-cpu",
-  "command": "check-cpu.sh",
-  "interval": 10,
-  "subscriptions": [
-    "system"
-  ],
-  "handlers": [
-      "slack"
-  ]
+    "type": "CheckConfig",
+    "spec": {
+        "name": "dummy-app-healthz",
+        "runtime_assets": [
+            "check-plugins"
+        ],
+        "command": "check-http -u http://localhost:8080/healthz",
+        "subscriptions":[
+            "dummy"
+        ],
+        "publish": true,
+        "interval": 30,
+        "namespace": "default",
+        "handlers": [
+            "slack"
+        ]
+    }
 }
 ```
 
 ## Usage examples
+
 Help:
+
 ```
-a slack handler built for use with sensu
+The Sensu Go Slack handler for notifying a channel
 
 Usage:
-  handler-slack [flags]
+  slack-handler [flags]
 
 Flags:
   -c, --channel string       The channel to post messages to (default "#general")
