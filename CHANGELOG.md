@@ -7,6 +7,15 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [0.1.0] - 2018-11-21
+
+### Breaking Changes
+- Updated sensu-go version to beta-8 and fixed some breaking changes that
+were introduced (Entity.ID -> Entity.Name).
+
+### Removed
+- Removed the vendor directory. Dependencies are still managed with Gopkg.toml.
+
 ## [0.0.2] - 2018-11-04
 
 Testing Asset goreleaser pipeline.
