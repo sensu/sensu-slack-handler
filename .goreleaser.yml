@@ -44,7 +44,7 @@ builds:
         goarch: mips64le
 
 archive:
-  name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+  # name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
   format: tar.gz
   files:
     - LICENSE
