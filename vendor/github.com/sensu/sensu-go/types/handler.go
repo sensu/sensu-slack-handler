@@ -38,12 +38,8 @@ func (h *Handler) Validate() error {
 		return err
 	}
 
-	if h.Environment == "" {
-		return errors.New("environment must be set")
-	}
-
-	if h.Organization == "" {
-		return errors.New("organization must be set")
+	if h.Namespace == "" {
+		return errors.New("namespace must be set")
 	}
 
 	return nil
@@ -64,6 +60,7 @@ func (h *Handler) validateType() error {
 	return fmt.Errorf("unknown handler type: %s", h.Type)
 }
 
+// Validate returns an error if the handler socket does not pass validation tests.
 func (s *HandlerSocket) Validate() error {
 	if s == nil {
 		return errors.New("tcp and udp handlers need a valid socket")
@@ -80,11 +77,12 @@ func (s *HandlerSocket) Validate() error {
 // FixtureHandler returns a Handler fixture for testing.
 func FixtureHandler(name string) *Handler {
 	return &Handler{
-		Name:         name,
-		Type:         HandlerPipeType,
-		Command:      "command",
-		Environment:  "default",
-		Organization: "default",
+		Type:    HandlerPipeType,
+		Command: "command",
+		ObjectMeta: ObjectMeta{
+			Namespace: "default",
+			Name:      name,
+		},
 	}
 }
 

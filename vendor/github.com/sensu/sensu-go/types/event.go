@@ -19,10 +19,10 @@ const EventFlappingState = "flapping"
 const EventPassingState = "passing"
 
 // FixtureEvent returns a testing fixutre for an Event object.
-func FixtureEvent(entityID, checkID string) *Event {
+func FixtureEvent(entityName, checkID string) *Event {
 	return &Event{
 		Timestamp: time.Now().Unix(),
-		Entity:    FixtureEntity(entityID),
+		Entity:    FixtureEntity(entityName),
 		Check:     FixtureCheck(checkID),
 	}
 }
@@ -82,24 +82,24 @@ func (e *Event) Validate() error {
 	}
 
 	if err := e.Entity.Validate(); err != nil {
-		return errors.New("entity " + err.Error())
+		return errors.New("entity is invalid: " + err.Error())
 	}
 
 	if e.HasCheck() {
 		if err := e.Check.Validate(); err != nil {
-			return errors.New("check " + err.Error())
+			return errors.New("check is invalid: " + err.Error())
 		}
 	}
 
 	if e.HasMetrics() {
 		if err := e.Metrics.Validate(); err != nil {
-			return errors.New("metrics " + err.Error())
+			return errors.New("metrics are invalid: " + err.Error())
 		}
 	}
 
 	for _, hook := range e.Hooks {
 		if err := hook.Validate(); err != nil {
-			return errors.New("hook " + err.Error())
+			return errors.New("hook is invalid: " + err.Error())
 		}
 	}
 
@@ -128,12 +128,12 @@ func (e *Event) IsResolution() bool {
 	}
 
 	// Try to retrieve the previous status in the check history and verify if it
-	// was a non-zero status, therefore indicating a resolution
-	isResolution := (len(e.Check.History) > 0 &&
-		e.Check.History[len(e.Check.History)-1].Status != 0 &&
+	// was a non-zero status, therefore indicating a resolution. The current event
+	// has already been added to the check history by eventd so we must retrieve
+	// the second to the last
+	return (len(e.Check.History) > 1 &&
+		e.Check.History[len(e.Check.History)-2].Status != 0 &&
 		!e.IsIncident())
-
-	return isResolution
 }
 
 // IsSilenced determines if an event has any silenced entries
@@ -145,29 +145,15 @@ func (e *Event) IsSilenced() bool {
 	return len(e.Check.Silenced) > 0
 }
 
-// Get implements govaluate.Parameters
-func (e *Event) Get(name string) (interface{}, error) {
-	switch name {
-	case "Timestamp":
-		return e.Timestamp, nil
-	case "Entity":
-		return e.Entity, nil
-	case "Check":
-		return e.Check, nil
-	case "Metrics":
-		return e.Metrics, nil
-	case "HasCheck":
-		return e.HasCheck(), nil
-	case "HasMetrics":
-		return e.HasMetrics(), nil
-	case "IsIncident":
-		return e.IsIncident(), nil
-	case "IsResolution":
-		return e.IsResolution(), nil
-	case "IsSilenced":
-		return e.IsSilenced(), nil
+// Implements dynamic.SynthesizeExtras
+func (e *Event) SynthesizeExtras() map[string]interface{} {
+	return map[string]interface{}{
+		"has_check":     e.HasCheck(),
+		"has_metrics":   e.HasMetrics(),
+		"is_incident":   e.IsIncident(),
+		"is_resolution": e.IsResolution(),
+		"is_silenced":   e.IsSilenced(),
 	}
-	return nil, errors.New("no parameter '" + name + "' found")
 }
 
 //
@@ -179,7 +165,7 @@ func EventsBySeverity(es []*Event) sort.Interface {
 	return &eventSorter{es, createCmpEvents(
 		cmpBySeverity,
 		cmpByLastOk,
-		cmpByEntityID,
+		cmpByEntityName,
 	)}
 }
 
@@ -205,17 +191,17 @@ func EventsByLastOk(es []*Event) sort.Interface {
 	return &eventSorter{es, createCmpEvents(
 		cmpByIncident,
 		cmpByLastOk,
-		cmpByEntityID,
+		cmpByEntityName,
 	)}
 }
 
-func cmpByEntityID(a, b *Event) int {
+func cmpByEntityName(a, b *Event) int {
 	ai, bi := "", ""
 	if a.Entity != nil {
-		ai = a.Entity.ID
+		ai = a.Entity.Name
 	}
 	if b.Entity != nil {
-		bi = b.Entity.ID
+		bi = b.Entity.Name
 	}
 
 	if ai == bi {
@@ -326,5 +312,5 @@ func (e *Event) URIPath() string {
 	if !e.HasCheck() {
 		return ""
 	}
-	return fmt.Sprintf("/events/%s/%s", url.PathEscape(e.Entity.ID), url.PathEscape(e.Check.Name))
+	return fmt.Sprintf("/events/%s/%s", url.PathEscape(e.Entity.Name), url.PathEscape(e.Check.Name))
 }

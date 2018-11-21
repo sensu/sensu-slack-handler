@@ -9,7 +9,7 @@ import (
 	"path"
 	"regexp"
 
-	"github.com/sensu/sensu-go/util/eval"
+	"github.com/sensu/sensu-go/js"
 )
 
 // AssetNameRegexStr used to validate name of asset
@@ -24,8 +24,8 @@ func (a *Asset) Validate() error {
 		return err
 	}
 
-	if a.Organization == "" {
-		return errors.New("organization cannot be empty")
+	if a.Namespace == "" {
+		return errors.New("namespace cannot be empty")
 	}
 
 	if a.Sha512 == "" {
@@ -49,13 +49,7 @@ func (a *Asset) Validate() error {
 		return errors.New("URL must be HTTP or HTTPS")
 	}
 
-	// Validate the statements and forbid govaluate's modifier tokens
-	return eval.ValidateStatements(a.Filters, true)
-}
-
-// GetEnvironment refers to the organization the check belongs to
-func (a *Asset) GetEnvironment() string {
-	return ""
+	return js.ParseExpressions(a.Filters)
 }
 
 // ValidateAssetName validates that asset's name is valid
@@ -90,16 +84,13 @@ func FixtureAsset(name string) *Asset {
 	_, _ = rand.Read(bytes)
 	hash := hex.EncodeToString(bytes)
 
-	return &Asset{
-		Name:   name,
+	asset := &Asset{
 		Sha512: "25e01b962045f4f5b624c3e47e782bef65c6c82602524dc569a8431b76cc1f57639d267380a7ec49f70876339ae261704fc51ed2fc520513cf94bc45ed7f6e17",
 		URL:    "https://localhost/" + hash + ".zip",
-		Metadata: map[string]string{
-			"Content-Type":            "application/zip",
-			"X-Intended-Distribution": "trusty-14",
-		},
-		Organization: "default",
 	}
+	asset.Name = name
+	asset.Namespace = "default"
+	return asset
 }
 
 // URIPath returns the path component of a Asset URI.

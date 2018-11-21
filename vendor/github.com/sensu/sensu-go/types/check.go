@@ -9,8 +9,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/robfig/cron"
-	"github.com/sensu/sensu-go/types/dynamic"
-	"github.com/sensu/sensu-go/util/eval"
+	"github.com/sensu/sensu-go/js"
 	utilstrings "github.com/sensu/sensu-go/util/strings"
 )
 
@@ -47,18 +46,21 @@ var OutputMetricFormats = []string{NagiosOutputMetricFormat, GraphiteOutputMetri
 // and encoding/json.
 func NewCheck(c *CheckConfig) *Check {
 	check := &Check{
+		ObjectMeta: ObjectMeta{
+			Name:        c.Name,
+			Namespace:   c.Namespace,
+			Labels:      c.Labels,
+			Annotations: c.Annotations,
+		},
 		Command:              c.Command,
-		Environment:          c.Environment,
 		Handlers:             c.Handlers,
 		HighFlapThreshold:    c.HighFlapThreshold,
 		Interval:             c.Interval,
 		LowFlapThreshold:     c.LowFlapThreshold,
-		Name:                 c.Name,
-		Organization:         c.Organization,
 		Publish:              c.Publish,
 		RuntimeAssets:        c.RuntimeAssets,
 		Subscriptions:        c.Subscriptions,
-		ProxyEntityID:        c.ProxyEntityID,
+		ProxyEntityName:      c.ProxyEntityName,
 		CheckHooks:           c.CheckHooks,
 		Stdin:                c.Stdin,
 		Subdue:               c.Subdue,
@@ -71,12 +73,6 @@ func NewCheck(c *CheckConfig) *Check {
 		OutputMetricHandlers: c.OutputMetricHandlers,
 		EnvVars:              c.EnvVars,
 	}
-	// Unmarshal extended attributes into a different Check value, so that
-	// we don't accidentally corrupt any of the default values for Check.
-	// See https://github.com/sensu/sensu-go/issues/1732 for more information.
-	tmpCheck := Check{}
-	_ = dynamic.Unmarshal(c.ExtendedAttributes, &tmpCheck)
-	check.ExtendedAttributes = tmpCheck.ExtendedAttributes
 	return check
 }
 
@@ -111,9 +107,9 @@ func (c *Check) Validate() error {
 
 	// The entity can be empty but can't contain invalid characters (only
 	// alphanumeric string)
-	if c.ProxyEntityID != "" {
-		if err := ValidateName(c.ProxyEntityID); err != nil {
-			return errors.New("proxy entity id " + err.Error())
+	if c.ProxyEntityName != "" {
+		if err := ValidateName(c.ProxyEntityName); err != nil {
+			return errors.New("proxy entity name " + err.Error())
 		}
 	}
 
@@ -140,11 +136,6 @@ func (c *Check) Validate() error {
 	return c.Subdue.Validate()
 }
 
-// UnmarshalJSON implements the json.Unmarshaler interface.
-func (c *Check) UnmarshalJSON(b []byte) error {
-	return dynamic.Unmarshal(b, c)
-}
-
 // MarshalJSON implements the json.Marshaler interface.
 func (c *Check) MarshalJSON() ([]byte, error) {
 	if c == nil {
@@ -157,32 +148,11 @@ func (c *Check) MarshalJSON() ([]byte, error) {
 		c.Handlers = []string{}
 	}
 
-	// Only use dynamic marshaling if there are dynamic attributes.
-	// Otherwise, use default json marshaling.
-	if len(c.ExtendedAttributes) > 0 {
-		return dynamic.Marshal(c)
-	}
-
 	type Clone Check
 	clone := &Clone{}
 	*clone = Clone(*c)
 
 	return jsoniter.Marshal(clone)
-}
-
-// SetExtendedAttributes sets the serialized ExtendedAttributes of c.
-func (c *Check) SetExtendedAttributes(e []byte) {
-	c.ExtendedAttributes = e
-}
-
-// Get implements govaluate.Parameters
-func (c *Check) Get(name string) (interface{}, error) {
-	return dynamic.GetField(c, name)
-}
-
-// UnmarshalJSON implements the json.Unmarshaler interface.
-func (c *CheckConfig) UnmarshalJSON(b []byte) error {
-	return dynamic.Unmarshal(b, c)
 }
 
 // MarshalJSON implements the json.Marshaler interface.
@@ -197,27 +167,11 @@ func (c *CheckConfig) MarshalJSON() ([]byte, error) {
 		c.Handlers = []string{}
 	}
 
-	// Only use dynamic marshaling if there are dynamic attributes.
-	// Otherwise, use default json marshaling.
-	if len(c.ExtendedAttributes) > 0 {
-		return dynamic.Marshal(c)
-	}
-
 	type Clone CheckConfig
 	clone := &Clone{}
 	*clone = Clone(*c)
 
 	return jsoniter.Marshal(clone)
-}
-
-// SetExtendedAttributes sets the serialized ExtendedAttributes of c.
-func (c *CheckConfig) SetExtendedAttributes(e []byte) {
-	c.ExtendedAttributes = e
-}
-
-// Get implements govaluate.Parameters
-func (c *CheckConfig) Get(name string) (interface{}, error) {
-	return dynamic.GetField(c, name)
 }
 
 // Validate returns an error if the check does not pass validation tests.
@@ -240,12 +194,8 @@ func (c *CheckConfig) Validate() error {
 		return errors.New("check interval must be greater than 0 or a valid cron schedule must be provided")
 	}
 
-	if c.Environment == "" {
-		return errors.New("environment cannot be empty")
-	}
-
-	if c.Organization == "" {
-		return errors.New("organization must be set")
+	if c.Namespace == "" {
+		return errors.New("namespace must be set")
 	}
 
 	if c.Ttl > 0 && c.Ttl <= int64(c.Interval) {
@@ -260,9 +210,9 @@ func (c *CheckConfig) Validate() error {
 
 	// The entity can be empty but can't contain invalid characters (only
 	// alphanumeric string)
-	if c.ProxyEntityID != "" {
-		if err := ValidateName(c.ProxyEntityID); err != nil {
-			return errors.New("proxy entity id " + err.Error())
+	if c.ProxyEntityName != "" {
+		if err := ValidateName(c.ProxyEntityName); err != nil {
+			return errors.New("proxy entity name " + err.Error())
 		}
 	}
 
@@ -299,7 +249,7 @@ func (p *ProxyRequests) Validate() error {
 		return errors.New("proxy request splay coverage must be greater than 0 if splay is enabled")
 	}
 
-	return eval.ValidateStatements(p.EntityAttributes, false)
+	return js.ParseExpressions(p.EntityAttributes)
 }
 
 // ValidateOutputMetricFormat returns an error if the string is not a valid metric
@@ -364,16 +314,17 @@ func FixtureCheckConfig(id string) *CheckConfig {
 	interval := uint32(60)
 	timeout := uint32(0)
 
-	return &CheckConfig{
-		Name:                 id,
+	check := &CheckConfig{
+		ObjectMeta: ObjectMeta{
+			Name:      id,
+			Namespace: "default",
+		},
 		Interval:             interval,
 		Subscriptions:        []string{"linux"},
 		Command:              "command",
 		Handlers:             []string{},
 		RuntimeAssets:        []string{"ruby-2-4-2"},
 		CheckHooks:           []HookList{*FixtureHookList("hook1")},
-		Environment:          "default",
-		Organization:         "default",
 		Publish:              true,
 		Cron:                 "",
 		Ttl:                  0,
@@ -381,6 +332,7 @@ func FixtureCheckConfig(id string) *CheckConfig {
 		OutputMetricHandlers: []string{},
 		OutputMetricFormat:   "",
 	}
+	return check
 }
 
 // FixtureCheck returns a fixture for a Check object.

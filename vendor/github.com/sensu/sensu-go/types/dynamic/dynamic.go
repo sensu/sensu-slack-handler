@@ -1,32 +1,20 @@
 package dynamic
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
-	"sort"
 	"strings"
-
-	jsoniter "github.com/json-iterator/go"
 )
 
-// AttrGetter is required to be implemented by types that need to work with
-// GetField and Marshal.
-type AttrGetter interface {
-	GetExtendedAttributes() []byte
-}
-
-// AttrSetter is required to be implemented by types that need to work with
-// Unmarshal.
-type AttrSetter interface {
-	SetExtendedAttributes([]byte)
-}
-
-// Attributes is a combination of AttrGetter and AttrSetter.
-type Attributes interface {
-	AttrSetter
-	AttrGetter
+// SynthesizeExtras is a type that wants to pass extra values to the Synthesize
+// function. The key-value pairs will be included as-is without inspection by
+// the Synthesize function. This is useful for populated synthesized values with
+// functions or computed values.
+type SynthesizeExtras interface {
+	// SynthesizeExtras returns a map of extra values to include when passing
+	// to Synthesize().
+	SynthesizeExtras() map[string]interface{}
 }
 
 // SetField inserts a value into v at path.
@@ -39,7 +27,7 @@ type Attributes interface {
 // v's reflect.Kind must be reflect.Struct, or a non-nil error will
 // be returned. If the path refers to a struct field, then v must
 // be addressable, or an error will be returned.
-func SetField(v Attributes, path string, value interface{}) error {
+func SetField(v interface{}, path string, value interface{}) error {
 	strukt := reflect.Indirect(reflect.ValueOf(v))
 	if !strukt.IsValid() {
 		return errors.New("SetField on nil Attributes")
@@ -47,81 +35,25 @@ func SetField(v Attributes, path string, value interface{}) error {
 	if kind := strukt.Kind(); kind != reflect.Struct {
 		return fmt.Errorf("invalid type (want struct): %v", kind)
 	}
-	addressOfAttrs := addressOfExtendedAttributes(v)
 	fieldsp := structFieldPool.Get().(*[]structField)
 	defer func() {
 		*fieldsp = (*fieldsp)[:0]
 		structFieldPool.Put(fieldsp)
 	}()
-	getJSONFields(strukt, addressOfAttrs, true, fieldsp)
+	getJSONFields(strukt, true, fieldsp)
 	fields := *fieldsp
 	f, ok := lookupField(fields, path)
 	if !ok {
-		return setExtendedAttribute(v, path, value)
+		return fmt.Errorf("dynamic: no such field: %q", path)
 	}
 	field := f.Value
 	if !field.IsValid() {
-		return setExtendedAttribute(v, path, value)
+		return fmt.Errorf("dynamic: field is invalid: %s", path)
 	}
 	if !field.CanSet() {
-		return fmt.Errorf("dynamic: can't set struct field %q", path)
+		return fmt.Errorf("dynamic: struct field not addressable: %q", path)
 	}
 	field.Set(reflect.ValueOf(value))
-	return nil
-}
-
-// setExtendedAttributes inserts a value into v according to path. path is a
-// dot-separated path like "foo.bar.baz".
-//
-// If setExtendedAttributes finds a path that does not currently exist, it will
-// call makeEnvelope in order to create the necessary objects are value to
-// satisfy the path.
-//
-// The mechanism of how this works is basically:
-// 1) Lazy-unmarshal extended attributes (keys that reference []byte)
-// 2) Write the extended attributes to a stream
-//    a) If the key we are writing matches the first component of the path,
-//       then deserialize the value into map[string]interface{} and insert
-//       the value. Marshal the result and write it to the stream.
-//    b) Otherwise, write the key-value pair as-is to the stream.
-// 3) Set the extended attributes from the stream's buffer.
-func setExtendedAttribute(v Attributes, path string, value interface{}) error {
-	parts := strings.Split(strings.TrimSpace(path), ".")
-	attrs := v.GetExtendedAttributes()
-	any := jsoniter.Get(attrs)
-	stream := jsoniter.NewStream(jsoniter.ConfigCompatibleWithStandardLibrary, nil, 1024)
-	stream.WriteObjectStart()
-	i := 0
-	keys := any.Keys()
-	sort.Strings(keys)
-	for _, key := range keys {
-		if key == parts[0] {
-			continue
-		}
-		if i > 0 {
-			stream.WriteMore()
-		}
-		stream.WriteObjectField(key)
-		any := any.Get(key)
-		any.WriteTo(stream)
-		i++
-	}
-	if i > 0 {
-		stream.WriteMore()
-	}
-	stream.WriteObjectField(parts[0])
-	if len(parts) == 1 {
-		stream.WriteVal(value)
-	} else {
-		envelope := makeEnvelope(any.Get(parts[0]), parts[1:], value)
-		stream.WriteVal(envelope)
-	}
-
-	stream.WriteObjectEnd()
-	if err := stream.Error; err != nil {
-		return err
-	}
-	v.SetExtendedAttributes(stream.Buffer())
 	return nil
 }
 
@@ -130,105 +62,161 @@ func setExtendedAttribute(v Attributes, path string, value interface{}) error {
 // it will try to dynamically find the corresponding item in the 'Extended'
 // field. GetField is case-sensitive, but extended attribute names will be
 // converted to CamelCaps.
-func GetField(v AttrGetter, name string) (interface{}, error) {
+func GetField(v interface{}, name string) (interface{}, error) {
 	if len(name) == 0 {
 		return nil, errors.New("dynamic: empty path specified")
 	}
 	if v == nil {
-		return nil, errors.New("dynamic: GetField with nil AttrGetter")
+		return nil, errors.New("dynamic: GetField with nil")
 	}
 
-	extendedAttributesAddress := addressOfExtendedAttributes(v)
-
-	if s := string([]rune(name)[0]); strings.Title(s) == s {
+	if s := string([]rune(name)[0]); strings.Title(s) != s {
 		// Exported fields are always upper-cased for the first rune
-		strukt := reflect.Indirect(reflect.ValueOf(v))
-		if kind := strukt.Kind(); kind != reflect.Struct {
-			return nil, fmt.Errorf("invalid type (want struct): %v", kind)
+		name = strings.Title(s) + string([]rune(name)[1:])
+	}
+	strukt := reflect.Indirect(reflect.ValueOf(v))
+	if kind := strukt.Kind(); kind != reflect.Struct {
+		return nil, fmt.Errorf("invalid type (want struct): %v", kind)
+	}
+	field := strukt.FieldByName(name)
+	if field.IsValid() {
+		field := reflect.Indirect(field)
+		if field.Kind() == reflect.Map {
+			return reflectMapToMapParameters(field), nil
 		}
-		field := strukt.FieldByName(name)
-		if field.IsValid() {
-			rval := reflect.Indirect(field).Interface()
-			if b, ok := rval.([]byte); ok && len(b) > 0 {
-				// Make sure this field isn't the extended attributes
-				if extendedAttributesAddress == &b[0] {
-					goto EXTENDED
-				}
-			}
-			return rval, nil
+		return field.Interface(), nil
+	}
+
+	return nil, fmt.Errorf("missing field: %q", name)
+}
+
+// reflectMapToMapParameters turns a reflect.Map into a map[string]interface{}
+func reflectMapToMapParameters(v reflect.Value) interface{} {
+	result := make(map[string]interface{})
+	for _, key := range v.MapKeys() {
+		if key.Kind() != reflect.String {
+			// Fallback - if the map has a non-string key type, return the
+			// variable as-is.
+			return v.Interface()
 		}
+		result[key.Interface().(string)] = v.MapIndex(key).Interface()
 	}
-EXTENDED:
-	// If we get here, we are dealing with extended attributes.
-	any := AnyParameters{any: jsoniter.Get(v.GetExtendedAttributes())}
-	return any.Get(name)
+	return result
 }
 
-// AnyParameters connects jsoniter.Any to govaluate.Parameters
-type AnyParameters struct {
-	any jsoniter.Any
-}
-
-// Get implements the govaluate.Parameters interface.
-func (p AnyParameters) Get(name string) (interface{}, error) {
-	any := p.any.Get(name)
-	if err := any.LastError(); err != nil {
-		return nil, err
-	}
-	switch any.ValueType() {
-	case jsoniter.InvalidValue:
-		return nil, fmt.Errorf("dynamic: %s", any.LastError())
-	case jsoniter.ObjectValue:
-		return AnyParameters{any: any}, any.LastError()
-	default:
-		return any.GetInterface(), any.LastError()
-	}
-
-}
-
-// Synthesize constructs a map[string]interface{} using the provided v in order
-// to provide all the extended attributes as well as any fields in the concrete
-// type of v
-func Synthesize(v AttrGetter) (map[string]interface{}, error) {
-	out := map[string]interface{}{}
-
+// Synthesize recursively turns structs into map[string]interface{}
+// values. It works on most datatypes. Synthesize panics if it is
+// called on channels.
+//
+// Synthesize will use the json tag from struct fields to name map
+// keys, if the json tag is present.
+func Synthesize(v interface{}) interface{} {
 	value := reflect.Indirect(reflect.ValueOf(v))
-	t := value.Type()
-
-	if t.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("expected a struct, received %s", t.Kind().String())
+	switch value.Kind() {
+	case reflect.Struct:
+		result := synthesizeStruct(value)
+		if m, ok := v.(SynthesizeExtras); ok {
+			for k, v := range m.SynthesizeExtras() {
+				result[k] = v
+			}
+		}
+		return result
+	case reflect.Slice, reflect.Array:
+		return synthesizeSlice(value)
+	case reflect.Map:
+		return synthesizeMap(value)
+	case reflect.Chan:
+		panic("can't synthesize channel")
+	case reflect.Invalid:
+		// We got passed a nil
+		return nil
+	default:
+		if value.CanInterface() {
+			return value.Interface()
+		}
+		return nil
 	}
+}
 
-	extendedAttributesAddress := addressOfExtendedAttributes(v)
+func synthesizeSlice(value reflect.Value) interface{} {
+	length := value.Len()
+	slice := make([]interface{}, length)
+	for i := 0; i < length; i++ {
+		val := value.Index(i)
+		var elt interface{} = nil
+		if val.CanInterface() {
+			elt = val.Interface()
+		}
+		slice[i] = Synthesize(elt)
+	}
+	return slice
+}
 
-	for i := 0; i < value.NumField(); i++ {
+func synthesizeMap(value reflect.Value) interface{} {
+	typ := value.Type()
+	keyT := typ.Key()
+	if keyT.Kind() != reflect.String {
+		// Maps without string keys are not supported
+		return map[string]interface{}{}
+	}
+	length := value.Len()
+	out := make(map[string]interface{}, length)
+	for _, key := range value.MapKeys() {
+		val := value.MapIndex(key)
+		var elt interface{}
+		if val.CanInterface() {
+			elt = val.Interface()
+		}
+		out[key.Interface().(string)] = Synthesize(elt)
+	}
+	return out
+}
+
+func synthesizeStruct(value reflect.Value) map[string]interface{} {
+	numField := value.NumField()
+	out := make(map[string]interface{}, numField)
+	t := value.Type()
+	for i := 0; i < numField; i++ {
 		field := t.Field(i)
+		if field.PkgPath != "" {
+			// unexported fields are not included in the synthesis
+			continue
+		}
 		s := structField{Field: field}
-		_, omitEmpty := s.jsonFieldName()
+		fieldName, omitEmpty := s.jsonFieldName()
+		fieldValue := value.Field(i)
 
 		// Don't add empty/nil fields to the map if omitempty is specified
-		empty := isEmpty(value.Field(i))
+		empty := isEmpty(fieldValue)
 		if empty && omitEmpty {
 			continue
 		}
 
-		// Determine if we are handling custom attributes
-		if !empty && isExtendedAttributes(extendedAttributesAddress, value.Field(i)) {
-			var attrs interface{}
-			if err := json.Unmarshal(value.Field(i).Bytes(), &attrs); err != nil {
-				return nil, err
-			}
+		switch fieldValue.Kind() {
+		case reflect.Struct:
+			// Recursively convert all fields to synthesized values
+			fields := synthesizeStruct(fieldValue)
 
-			extendedAttributes := mapOfExtendedAttributes(attrs)
-			for k, v := range extendedAttributes {
-				out[k] = v
+			// flatten embedded fields to the top level
+			if t.Field(i).Anonymous {
+				for k, v := range fields {
+					out[k] = v
+				}
+			} else {
+				out[fieldName] = fields
 			}
-
-			continue
+		case reflect.Slice, reflect.Array:
+			out[fieldName] = synthesizeSlice(fieldValue)
+		case reflect.Map:
+			out[fieldName] = synthesizeMap(fieldValue)
+		default:
+			if fieldValue.CanInterface() {
+				out[fieldName] = Synthesize(fieldValue.Interface())
+			} else {
+				out[fieldName] = nil
+			}
 		}
-
-		out[field.Name] = value.Field(i).Interface()
 	}
 
-	return out, nil
+	return out
 }

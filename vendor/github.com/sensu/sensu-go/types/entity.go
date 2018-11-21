@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -15,42 +16,26 @@ const (
 
 	// EntityProxyClass is the name of the class given to proxy entities.
 	EntityProxyClass = "proxy"
+
+	// EntityBackendClass is the name of the class given to backend entities.
+	EntityBackendClass = "backend"
 )
 
 // Validate returns an error if the entity is invalid.
 func (e *Entity) Validate() error {
-	if err := ValidateName(e.ID); err != nil {
-		return errors.New("entity id " + err.Error())
+	if err := ValidateName(e.Name); err != nil {
+		return errors.New("entity name " + err.Error())
 	}
 
-	if err := ValidateName(e.Class); err != nil {
+	if err := ValidateName(e.EntityClass); err != nil {
 		return errors.New("entity class " + err.Error())
 	}
 
-	if e.Environment == "" {
-		return errors.New("environment must be set")
-	}
-
-	if e.Organization == "" {
-		return errors.New("organization must be set")
+	if e.Namespace == "" {
+		return errors.New("namespace must be set")
 	}
 
 	return nil
-}
-
-// Get implements govaluate.Parameters
-func (e *Entity) Get(name string) (interface{}, error) {
-	return dynamic.GetField(e, name)
-}
-
-// SetExtendedAttributes sets the serialized ExtendedAttributes of the entity.
-func (e *Entity) SetExtendedAttributes(b []byte) {
-	e.ExtendedAttributes = b
-}
-
-// UnmarshalJSON implements the json.Unmarshaler interface.
-func (e *Entity) UnmarshalJSON(b []byte) error {
-	return dynamic.Unmarshal(b, e)
 }
 
 // MarshalJSON implements the json.Marshaler interface.
@@ -62,30 +47,33 @@ func (e *Entity) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	return dynamic.Marshal(redactedEntity)
+	type Clone Entity
+	clone := (*Clone)(redactedEntity.(*Entity))
+
+	return json.Marshal(clone)
 }
 
 // GetEntitySubscription returns the entity subscription, using the format
-// "entity:entityID"
-func GetEntitySubscription(entityID string) string {
-	return fmt.Sprintf("entity:%s", entityID)
+// "entity:entityName"
+func GetEntitySubscription(entityName string) string {
+	return fmt.Sprintf("entity:%s", entityName)
 }
 
 // FixtureEntity returns a testing fixture for an Entity object.
-func FixtureEntity(id string) *Entity {
+func FixtureEntity(name string) *Entity {
 	return &Entity{
-		ID:               id,
-		Class:            "host",
-		Subscriptions:    []string{"linux"},
-		Environment:      "default",
-		Organization:     "default",
-		KeepaliveTimeout: 120,
+		EntityClass:   "host",
+		Subscriptions: []string{"linux"},
+		ObjectMeta: ObjectMeta{
+			Namespace: "default",
+			Name:      name,
+		},
 	}
 }
 
 // URIPath returns the path component of a Entity URI.
 func (e *Entity) URIPath() string {
-	return fmt.Sprintf("/entities/%s", url.PathEscape(e.ID))
+	return fmt.Sprintf("/entities/%s", url.PathEscape(e.Name))
 }
 
 //
@@ -102,11 +90,11 @@ func SortEntitiesByPredicate(es []*Entity, fn func(a, b *Entity) bool) sort.Inte
 func SortEntitiesByID(es []*Entity, asc bool) sort.Interface {
 	if asc {
 		return SortEntitiesByPredicate(es, func(a, b *Entity) bool {
-			return a.ID < b.ID
+			return a.Name < b.Name
 		})
 	}
 	return SortEntitiesByPredicate(es, func(a, b *Entity) bool {
-		return a.ID > b.ID
+		return a.Name > b.Name
 	})
 }
 

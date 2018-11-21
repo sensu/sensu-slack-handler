@@ -115,7 +115,7 @@ func chomp(s string) string {
 }
 
 func eventKey(event *types.Event) string {
-	return fmt.Sprintf("%s/%s", event.Entity.ID, event.Check.Name)
+	return fmt.Sprintf("%s/%s", event.Entity.Name, event.Check.Name)
 }
 
 func eventSummary(event *types.Event, maxLength int) string {
@@ -166,7 +166,7 @@ func messageAttachment(event *types.Event) *slack.Attachment {
 			},
 			&slack.AttachmentField{
 				Title: "Entity",
-				Value: event.Entity.ID,
+				Value: event.Entity.Name,
 				Short: true,
 			},
 			&slack.AttachmentField{
