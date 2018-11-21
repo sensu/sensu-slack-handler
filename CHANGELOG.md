@@ -7,9 +7,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-## [0.0.3] - 2018-11-21
+## [0.1.0] - 2018-11-21
 
-### Changed
+### Breaking Changes
 - Updated sensu-go version to beta-8 and fixed some breaking changes that
 were introduced (Entity.ID -> Entity.Name).
 
