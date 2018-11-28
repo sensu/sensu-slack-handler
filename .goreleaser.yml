@@ -1,8 +1,11 @@
 builds:
-  - env:
+  # List of builds
+  - # First Build
+    env:
     - CGO_ENABLED=0
-  - main: main.go
-    binary: sensu-slack-handler
+    main: main.go
+    # Set the binary output location to bin/ so archive will comply with Sensu Go Asset structure
+    binary: bin/sensu-slack-handler
     goos:
       #-android
       - darwin
