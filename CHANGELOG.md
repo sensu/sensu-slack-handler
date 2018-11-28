@@ -7,6 +7,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [0.1.2] - 2018-11-27
+
+### Changed
+- Updated the goreleaser file so that the handler is packaged as a sensu compatible asset.
+
 ## [0.1.1] - 2018-11-21
 
 ### Breaking Changes
