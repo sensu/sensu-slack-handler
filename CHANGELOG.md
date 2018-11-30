@@ -7,6 +7,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [1.0.0] - 2018-11-30
+
+### Breaking Changes
+- Updated sensu-go version to GA RC SHA.
+
 ## [0.1.2] - 2018-11-27
 
 ### Changed
