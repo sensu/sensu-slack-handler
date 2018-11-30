@@ -5,7 +5,7 @@ a configured Slack channel.
 
 ## Installation
 
-Download the latest version of the slack-handler from [releases][2],
+Download the latest version of the sensu-slack-handler from [releases][2],
 or create an executable script from this source.
 
 From the local path of the slack-handler repository:
