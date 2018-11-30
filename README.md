@@ -1,6 +1,6 @@
 # Sensu Go Slack Handler
 
-The Sensu slack handler is a [Sensu Event Handler][1] that sends event data to
+The Sensu Slack handler is a [Sensu Event Handler][1] that sends event data to
 a configured Slack channel.
 
 ## Installation
@@ -10,7 +10,7 @@ or create an executable script from this source.
 
 From the local path of the slack-handler repository:
 ```
-go build -o /usr/local/bin/slack-handler main.go
+go build -o /usr/local/bin/sensu-slack-handler main.go
 ```
 
 ## Configuration
@@ -21,39 +21,42 @@ slack-handler.json
 
 ```json
 {
+    "api_version": "core/v2",
     "type": "Handler",
+    "metadata": {
+        "namespace": "default",
+        "name": "slack"
+    },
     "spec": {
-        "name": "slack",
         "type": "pipe",
-        "command": "slack-handler --channel '#general' --timeout 20 --username 'sensu' --webhook-url 'https://www.webhook-url-for-slack.com'",
-        "timeout": 10,
+        "command": "sensu-slack-handler --channel '#general' --timeout 20 --username 'sensu' --webhook-url 'https://www.webhook-url-for-slack.com'",
+        "timeout": 30,
         "filters": [
             "is_incident"
-        ],
-        "namespace": "default"
+        ]
     }
 }
 ```
 
 `sensuctl create -f slack-handler.json`
 
-Example Sensu 2.x check definition:
+Example Sensu Go check definition:
 
 ```json
 {
+    "api_version": "core/v2",
     "type": "CheckConfig",
+    "metadata": {
+        "namespace": "default",
+        "name": "dummy-app-healthz"
+    },
     "spec": {
-        "name": "dummy-app-healthz",
-        "runtime_assets": [
-            "check-plugins"
-        ],
         "command": "check-http -u http://localhost:8080/healthz",
         "subscriptions":[
             "dummy"
         ],
         "publish": true,
-        "interval": 30,
-        "namespace": "default",
+        "interval": 10,
         "handlers": [
             "slack"
         ]
@@ -69,7 +72,7 @@ Help:
 The Sensu Go Slack handler for notifying a channel
 
 Usage:
-  slack-handler [flags]
+  sensu-slack-handler [flags]
 
 Flags:
   -c, --channel string       The channel to post messages to (default "#general")
@@ -80,5 +83,5 @@ Flags:
   -w, --webhook-url string   The webhook url to send messages to
 ```
 
-[1]: https://docs.sensu.io/sensu-core/2.0/reference/handlers/#how-do-sensu-handlers-work
-[2]: https://github.com/sensu/slack-handler/releases
+[1]: https://docs.sensu.io/sensu-go/5.0/reference/handlers/#how-do-sensu-handlers-work
+[2]: https://github.com/sensu/sensu-slack-handler/releases
