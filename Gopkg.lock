@@ -54,8 +54,8 @@
     "ptypes/duration",
     "ptypes/timestamp"
   ]
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -112,8 +112,8 @@
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
-  version = "v1.0.2"
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -136,13 +136,13 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+  revision = "fae4c4e3ad76c295c3d6d259f898136b4bf833a8"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "0cf1ed9e522b7dbb416f080a5c8003de9b702bf4"
+  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -169,7 +169,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "b5d43981345bdb2c233eb4bf3277847b48c6fdc6"
+  revision = "31ac5d88444a9e7ad18077db9a165d793ad06a2e"
 
 [[projects]]
   name = "google.golang.org/grpc"
