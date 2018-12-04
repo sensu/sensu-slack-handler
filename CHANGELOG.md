@@ -7,6 +7,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+## [1.0.2] - 2018-12-04
+
+### Added
+- Travis post-deploy script generates a sha512 for packages to be sensu asset compatible. 
+
 ## [1.0.1] - 2018-11-30
 
 ### Changed
