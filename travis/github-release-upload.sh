@@ -23,7 +23,7 @@
 # Check dependencies.
 set -e
 
-# Set Meaninglist Defaults
+# Set Envvars Defaults:
 filename="text.txt"
 github_api_token="aaa"
 repo_slug="test/test"
@@ -35,6 +35,7 @@ id="0"
 
 CONFIG=( "$@" )
 
+# Update Envvars using cmdline args
 for line in "${CONFIG[@]}"; do
   eval "$line"
 done
