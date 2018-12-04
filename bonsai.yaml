@@ -1,0 +1,21 @@
+---
+description: "Sensu Slack Handler"
+builds:
+- platform: "linux"
+  arch: "amd64"
+  asset_filename: "sensu-slack-handler_#{version}_linux_amd64.tar.gz" 
+  sha_filename: "sensu-slack-handler_#{version}_sha512-checksums.txt" 
+  filter:
+  -  "System.OS == linux"
+  -  "(System.Arch == x86_64) || (System.Arch == amd64)"
+
+- platform: "OSX"
+  arch: "x86_64"
+  asset_filename: "sensu-slack-handler_#{version}_darwin_amd64.tar.gz" 
+  sha_filename: "sensu-slack-handler_#{version}_sha512-checksums.txt" 
+  filter:
+  -  "System.OS == OSX"
+  -  "(System.Arch == x86_64) || (System.Arch == amd64)"
+
+...
+
