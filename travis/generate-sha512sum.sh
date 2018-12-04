@@ -10,9 +10,14 @@ if [ -d dist ]; then
     export prefix
     echo "Generating sha512sum for ${package}_${prefix}"
     cd dist
-    sha512sum *.tar.gz > "${package}_${prefix}_sha512-checksum.txt"
     sha512_file="${package}_${prefix}_sha512-checksum.txt"
     export sha512_file
-    cat "${sha512}"
+    echo "sha512_file: ${sha512_file}"
+    echo "${sha512_file}" > sha512_file
+    sha512sum *.tar.gz > "${sha512_file}"
+    echo ""
+    cat "${sha512_file}"
   fi
+else
+  echo "error"
 fi
