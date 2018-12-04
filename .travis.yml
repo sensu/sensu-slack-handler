@@ -1,6 +1,8 @@
 language: go
 go:
 - 1.10.x
+
+
 install:
 - go get gopkg.in/alecthomas/gometalinter.v1
 - go get github.com/gordonklaus/ineffassign
@@ -12,20 +14,24 @@ install:
 script:
 - gometalinter.v1 --vendor --disable-all --enable=vet --enable=golint --enable=ineffassign
   --enable=goconst --tests ./...
+
+before_script: 
+- echo "REPO $TRAVIS_REPO_SLUG TAG ${TRAVIS_TAG}"
+
 before_deploy:
 - go get github.com/goreleaser/goreleaser
 deploy:
-  skip_cleanup: true
   - #goreleaser
     provider: script
     script: goreleaser
+    skip_cleanup: true
     on:
       tags: true
-  - #checksum
-    provider: script
-    script: travis/generate-sha512sum.sh
-    on:
-      tags: true
+
+after_deploy:  
+  - travis/generate-sha512sum.sh
+  - cat "dist/sha512_file"
+  - travis/github-release-upload.sh github_api_token=$GITHUB_TOKEN repo_slug="$TRAVIS_REPO_SLUG" tag="${TRAVIS_TAG}" filename="dist/$(cat dist/sha512_file)"
 
 env:
   global:
