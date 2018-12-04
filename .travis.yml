@@ -31,7 +31,7 @@ deploy:
 after_deploy:  
   - travis/generate-sha512sum.sh
   - cat "dist/sha512_file"
-  - travis/github-release-upload.sh github_api_token=$GITHUB_TOKEN repo_slug="$TRAVIS_REPO_SLUG" tag="${TRAVIS_TAG}" filename="$(cat dist/sha512_file)"
+  - travis/github-release-upload.sh github_api_token=$GITHUB_TOKEN repo_slug="$TRAVIS_REPO_SLUG" tag="${TRAVIS_TAG}" filename="dist/$(cat dist/sha512_file)"
 
 env:
   global:
