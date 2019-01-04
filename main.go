@@ -37,11 +37,17 @@ func configureRootCommand() *cobra.Command {
 		RunE:  run,
 	}
 
+	/*
+		Sensitive flags
+		default to using envvar value
+		do not mark as required
+		manually test for empty value
+	*/
 	cmd.Flags().StringVarP(&webhookURL,
 		"webhook-url",
 		"w",
-		"",
-		"The webhook url to send messages to")
+		os.Getenv("SLACK_WEBHOOK_URL"),
+		"The webhook url to send messages to, defaults to value of SLACK_WEBHOOK_URL env variable")
 
 	cmd.Flags().StringVarP(&channel,
 		"channel",
@@ -74,6 +80,11 @@ func run(cmd *cobra.Command, args []string) error {
 	if len(args) != 0 {
 		_ = cmd.Help()
 		return errors.New("invalid argument(s) received")
+	}
+	if webhookURL == "" {
+		_ = cmd.Help()
+		return fmt.Errorf("webhook url is empty")
+
 	}
 	if stdin == nil {
 		stdin = os.Stdin
