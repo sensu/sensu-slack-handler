@@ -69,7 +69,7 @@ Example Sensu Go check definition:
 }
 ```
 
-**Security Note:** The Slack webhook url is treated as a security sensitive configuration option in this example and is loaded into the handler config as an env_var instead of as a command argument. Command arguments are commonaly readable from the process table by other unprivaledged users on a system (ex: `ps` and `top` commands), so it's a better practise to read in sensitive information via environment variables or configuration files on disk. The `--webhook-url` flag is provided as an override for testing purposes.
+**Security Note:** The Slack webhook url is treated as a security sensitive configuration option in this example and is loaded into the handler config as an env_var instead of as a command argument. Command arguments are commonly readable from the process table by other unprivaledged users on a system (ex: `ps` and `top` commands), so it's a better practise to read in sensitive information via environment variables or configuration files on disk. The `--webhook-url` flag is provided as an override for testing purposes.
 
 ## Usage examples
 
