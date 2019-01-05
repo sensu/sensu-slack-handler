@@ -32,7 +32,7 @@ slack-handler.json
         "type": "pipe",
         "command": "sensu-slack-handler --channel '#general' --timeout 20 --username 'sensu' ",
         "env_vars": [
-            "SLACK_WEBHOOK_URL='https://www.webhook-url-for-slack.com'"
+            "SLACK_WEBHOOK_URL=https://www.webhook-url-for-slack.com"
         ],
 
         "timeout": 30,
