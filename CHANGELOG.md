@@ -6,6 +6,8 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Use SLACK_WEBHOOK_URL envvar for default value of slack_webhook_url.  Use of envvar by default prevents leaking of sensitive credential into system process table via command argument. This is a backwards compatible change, and the --webhook-url argument can still be used as an override for testing purposes.
 
 ## [1.0.2] - 2018-12-04
 
