@@ -19,10 +19,10 @@ import (
 type HandlerConfig struct {
 	// A "Keyspace" field and corresponding "path" Field tags must be set to
 	// enable configuration overrides.
-	SlackWebhookUrl string `path:"webhook-url"`
-	SlackChannel string `path:"channel"`
-	SlackUsername string `path:"username"`
-	SlackIconUrl string `path:"icon-url"`
+	SlackWebhookUrl string `path:"webhook-url" env:"SENSU_SLACK_WEBHOOK_URL"`
+	SlackChannel string `path:"channel" env:"SENSU_SLACK_CHANNEL"`
+	SlackUsername string `path:"username" env:"SENSU_SLACK_USERNAME"`
+	SlackIconUrl string `path:"icon-url" env:"SENSU_SLACK_ICON_URL"`
 	Timeout int
 	Keyspace string
 }
