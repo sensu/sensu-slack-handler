@@ -8,19 +8,32 @@ import (
 	"log"
 	"os"
 	"strings"
+	"strconv"
+	"reflect"
 
 	"github.com/bluele/slack"
 	"github.com/sensu/sensu-go/types"
 	"github.com/spf13/cobra"
 )
 
+type HandlerConfig struct {
+	// A "Keyspace" field and corresponding "path" Field tags must be set to
+	// enable configuration overrides.
+	SlackWebhookUrl string `path:"webhook-url"`
+	SlackChannel string `path:"channel"`
+	SlackUsername string `path:"username"`
+	SlackIconUrl string `path:"icon-url"`
+	Timeout int
+	Keyspace string
+}
+
 var (
-	webhookURL string
-	channel    string
-	username   string
-	iconURL    string
-	timeout    int
-	stdin      *os.File
+	stdin     *os.File
+	config 		= HandlerConfig{
+		// default values
+		Timeout: 10,
+		Keyspace: "sensu.io/integrations/slack/config",
+	}
 )
 
 func main() {
@@ -43,31 +56,31 @@ func configureRootCommand() *cobra.Command {
 		do not mark as required
 		manually test for empty value
 	*/
-	cmd.Flags().StringVarP(&webhookURL,
+	cmd.Flags().StringVarP(&config.SlackWebhookUrl,
 		"webhook-url",
 		"w",
 		os.Getenv("SLACK_WEBHOOK_URL"),
 		"The webhook url to send messages to, defaults to value of SLACK_WEBHOOK_URL env variable")
 
-	cmd.Flags().StringVarP(&channel,
+	cmd.Flags().StringVarP(&config.SlackChannel,
 		"channel",
 		"c",
 		"#general",
 		"The channel to post messages to")
 
-	cmd.Flags().StringVarP(&username,
+	cmd.Flags().StringVarP(&config.SlackUsername,
 		"username",
 		"u",
 		"sensu",
 		"The username that messages will be sent as")
 
-	cmd.Flags().StringVarP(&iconURL,
+	cmd.Flags().StringVarP(&config.SlackIconUrl,
 		"icon-url",
 		"i",
 		"http://s3-us-west-2.amazonaws.com/sensuapp.org/sensu.png",
 		"A URL to an image to use as the user avatar")
 
-	cmd.Flags().IntVarP(&timeout,
+	cmd.Flags().IntVarP(&config.Timeout,
 		"timeout",
 		"t",
 		10,
@@ -81,25 +94,28 @@ func run(cmd *cobra.Command, args []string) error {
 		_ = cmd.Help()
 		return errors.New("invalid argument(s) received")
 	}
-	if webhookURL == "" {
-		_ = cmd.Help()
-		return fmt.Errorf("webhook url is empty")
 
-	}
+	// load & parse stdin
 	if stdin == nil {
 		stdin = os.Stdin
 	}
-
 	eventJSON, err := ioutil.ReadAll(stdin)
 	if err != nil {
 		return fmt.Errorf("failed to read stdin: %s", err.Error())
 	}
-
 	event := &types.Event{}
 	err = json.Unmarshal(eventJSON, event)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal stdin data: %s", eventJSON)
 	}
+
+  // configuration validation & overrides
+	if config.SlackWebhookUrl == "" {
+		_ = cmd.Help()
+		return fmt.Errorf("webhook url is empty")
+	}
+
+	configurationOverrides(&config,event)
 
 	if err = validateEvent(event); err != nil {
 		return errors.New(err.Error())
@@ -110,6 +126,42 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func overrideConfig(t reflect.StructField, v *reflect.Value, o string) {
+	switch t.Type.Name() {
+		case "string":
+			v.FieldByName(t.Name).SetString(o)
+		case "int":
+			i,err := strconv.Atoi(o)
+			if err != nil {
+				log.Fatal(err)
+			}
+			v.FieldByName(t.Name).SetInt(int64(i))
+	}
+}
+
+func configurationOverrides(c *HandlerConfig, event *types.Event) {
+	if c.Keyspace != "" {
+		// Use Golang reflection to dynamically walk the configuration object
+		t := reflect.TypeOf(HandlerConfig{})
+		v := reflect.ValueOf(c).Elem()
+		for i := 0; i < t.NumField(); i++ {
+			// For any field
+			if path := t.Field(i).Tag.Get("path"); path != "" {
+				// compile the Annotation keyspace to look for configuration overrides
+				k := fmt.Sprintf("%s/%s",c.Keyspace,path)
+				switch {
+				case event.Entity.Annotations[k] != "":
+					overrideConfig(t.Field(i),&v,event.Entity.Annotations[k])
+					log.Printf("Overriding default handler configuration with value of \"Entity.Annotations.%s\" (\"%s\")\n",k,event.Entity.Annotations[k])
+				case event.Check.Annotations[k] != "":
+					overrideConfig(t.Field(i),&v,event.Check.Annotations[k])
+					log.Printf("Overriding default handler configuration with value of \"Check.Annotations.%s\" (\"%s\")\n",k,event.Check.Annotations[k])
+				}
+			}
+		}
+	}
 }
 
 func formattedEventAction(event *types.Event) string {
@@ -191,12 +243,12 @@ func messageAttachment(event *types.Event) *slack.Attachment {
 }
 
 func sendMessage(event *types.Event) error {
-	hook := slack.NewWebHook(webhookURL)
+	hook := slack.NewWebHook(config.SlackWebhookUrl)
 	return hook.PostMessage(&slack.WebHookPostPayload{
 		Attachments: []*slack.Attachment{messageAttachment(event)},
-		Channel:     channel,
-		IconUrl:     iconURL,
-		Username:    username,
+		Channel:     config.SlackChannel,
+		IconUrl:     config.SlackIconUrl,
+		Username:    config.SlackUsername,
 	})
 }
 

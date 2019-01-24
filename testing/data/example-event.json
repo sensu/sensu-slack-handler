@@ -1,0 +1,193 @@
+{
+  "timestamp": 1548109478,
+  "entity": {
+    "entity_class": "agent",
+    "system": {
+      "hostname": "70faa7c58706",
+      "os": "linux",
+      "platform": "debian",
+      "platform_family": "debian",
+      "platform_version": "9.6",
+      "network": {
+        "interfaces": [
+          {
+            "name": "lo",
+            "addresses": [
+              "127.0.0.1/8"
+            ]
+          },
+          {
+            "name": "eth0",
+            "mac": "02:42:ac:15:00:07",
+            "addresses": [
+              "172.21.0.7/16"
+            ]
+          }
+        ]
+      },
+      "arch": "amd64"
+    },
+    "subscriptions": [
+      "linux",
+      "docker",
+      "poller",
+      "entity:70faa7c58706"
+    ],
+    "last_seen": 1548099786,
+    "deregister": true,
+    "deregistration": {},
+    "user": "agent",
+    "redact": [
+      "password",
+      "passwd",
+      "pass",
+      "api_key",
+      "api_token",
+      "access_key",
+      "secret_key",
+      "private_key",
+      "secret"
+    ],
+    "metadata": {
+      "name": "70faa7c58706",
+      "namespace": "default",
+      "labels": {
+        "region": "us-west-1"
+      }
+    }
+  },
+  "check": {
+    "command": "echo \"Hello linux world!\" && exit 1",
+    "handlers": [
+      "remediation"
+    ],
+    "high_flap_threshold": 0,
+    "interval": 10,
+    "low_flap_threshold": 0,
+    "publish": true,
+    "runtime_assets": null,
+    "subscriptions": [
+      "linux"
+    ],
+    "proxy_entity_name": "",
+    "check_hooks": null,
+    "stdin": false,
+    "subdue": null,
+    "ttl": 0,
+    "timeout": 0,
+    "round_robin": false,
+    "duration": 0.005119243,
+    "executed": 1548109478,
+    "history": [
+      {
+        "status": 1,
+        "executed": 1548109285
+      },
+      {
+        "status": 1,
+        "executed": 1548109295
+      },
+      {
+        "status": 1,
+        "executed": 1548109305
+      },
+      {
+        "status": 1,
+        "executed": 1548109315
+      },
+      {
+        "status": 1,
+        "executed": 1548109325
+      },
+      {
+        "status": 1,
+        "executed": 1548109335
+      },
+      {
+        "status": 1,
+        "executed": 1548109345
+      },
+      {
+        "status": 1,
+        "executed": 1548109355
+      },
+      {
+        "status": 1,
+        "executed": 1548109365
+      },
+      {
+        "status": 1,
+        "executed": 1548109375
+      },
+      {
+        "status": 1,
+        "executed": 1548109385
+      },
+      {
+        "status": 1,
+        "executed": 1548109395
+      },
+      {
+        "status": 1,
+        "executed": 1548109405
+      },
+      {
+        "status": 1,
+        "executed": 1548109415
+      },
+      {
+        "status": 1,
+        "executed": 1548109425
+      },
+      {
+        "status": 1,
+        "executed": 1548109435
+      },
+      {
+        "status": 1,
+        "executed": 1548109445
+      },
+      {
+        "status": 1,
+        "executed": 1548109455
+      },
+      {
+        "status": 1,
+        "executed": 1548109458
+      },
+      {
+        "status": 1,
+        "executed": 1548109468
+      },
+      {
+        "status": 1,
+        "executed": 1548109478
+      }
+    ],
+    "issued": 1548109478,
+    "output": "Hello linux world!\n",
+    "state": "failing",
+    "status": 1,
+    "total_state_change": 0,
+    "last_ok": 1548105266,
+    "occurrences": 423,
+    "occurrences_watermark": 423,
+    "output_metric_format": "",
+    "output_metric_handlers": null,
+    "env_vars": null,
+    "metadata": {
+      "name": "helloworld",
+      "namespace": "default",
+      "labels": {
+        "foo": "bar"
+      },
+      "annotations": {
+        "sensu.io/integrations/slack/config/channel": "#demo-service-a",
+        "sensu.io/integrations/slack/config/username": "Sensu Go FTW!"        
+      }
+    }
+  },
+  "metadata": {
+    "namespace": "default"
+  }
+}

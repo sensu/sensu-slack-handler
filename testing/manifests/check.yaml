@@ -1,0 +1,22 @@
+---
+type: CheckConfig
+api_version: core/v2
+metadata:
+  name: helloworld
+  namespace: default
+  labels:
+    foo: bar
+  annotations:
+    senus.io/integrations/slack/config/webhook_url: nil
+    sensu.io/integrations/slack/config/channel: "#demo"
+    sensu.io/integrations/slack/config/username: SensuBot
+    sensu.io/integrations/slack/config/icon_url: nil
+    sensu.io/integrations/slack/config/timeout: 10
+spec:
+  command: echo "Hello {{ .system.os }} world!" && exit 1
+  publish: false
+  interval: 10
+  handlers:
+  - slack
+  subscriptions:
+  - development
