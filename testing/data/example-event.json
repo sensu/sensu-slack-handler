@@ -182,8 +182,8 @@
         "foo": "bar"
       },
       "annotations": {
-        "sensu.io/integrations/slack/config/channel": "#demo-service-a",
-        "sensu.io/integrations/slack/config/username": "Sensu Go FTW!"        
+        "sensu.io/plugins/slack/config/channel": "#demo-service-a",
+        "sensu.io/plugins/slack/config/username": "Sensu Go FTW!"        
       }
     }
   },

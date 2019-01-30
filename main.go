@@ -32,7 +32,7 @@ var (
 	config 		= HandlerConfig{
 		// default values
 		Timeout: 10,
-		Keyspace: "sensu.io/integrations/slack/config",
+		Keyspace: "sensu.io/plugins/slack/config",
 	}
 )
 
