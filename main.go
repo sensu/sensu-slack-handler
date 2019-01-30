@@ -152,12 +152,12 @@ func configurationOverrides(c *HandlerConfig, event *types.Event) {
 				// compile the Annotation keyspace to look for configuration overrides
 				k := fmt.Sprintf("%s/%s",c.Keyspace,path)
 				switch {
-				case event.Entity.Annotations[k] != "":
-					overrideConfig(t.Field(i),&v,event.Entity.Annotations[k])
-					log.Printf("Overriding default handler configuration with value of \"Entity.Annotations.%s\" (\"%s\")\n",k,event.Entity.Annotations[k])
 				case event.Check.Annotations[k] != "":
 					overrideConfig(t.Field(i),&v,event.Check.Annotations[k])
 					log.Printf("Overriding default handler configuration with value of \"Check.Annotations.%s\" (\"%s\")\n",k,event.Check.Annotations[k])
+				case event.Entity.Annotations[k] != "":
+					overrideConfig(t.Field(i),&v,event.Entity.Annotations[k])
+					log.Printf("Overriding default handler configuration with value of \"Entity.Annotations.%s\" (\"%s\")\n",k,event.Entity.Annotations[k])
 				}
 			}
 		}
