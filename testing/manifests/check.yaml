@@ -1,0 +1,18 @@
+---
+type: CheckConfig
+api_version: core/v2
+metadata:
+  name: helloworld
+  namespace: default
+  labels:
+    foo: bar
+  annotations:
+    sensu.io/plugins/slack/config/channel: "#demo"
+spec:
+  command: echo "Hello {{ .system.os }} world!" && exit 1
+  publish: false
+  interval: 10
+  handlers:
+  - slack
+  subscriptions:
+  - development
