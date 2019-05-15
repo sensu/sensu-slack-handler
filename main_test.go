@@ -122,7 +122,7 @@ func TestSendMessage(t *testing.T) {
 	assert.NoError(err)
 }
 
-func TestMain(t *testing.T) {
+func TestMain(m *testing.M) {
 	assert := assert.New(t)
 	file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-slack-")
 	defer func() {
@@ -132,7 +132,7 @@ func TestMain(t *testing.T) {
 	event := types.FixtureEvent("entity1", "check1")
 	eventJSON, _ := json.Marshal(event)
 	_, err := file.WriteString(string(eventJSON))
-	require.NoError(t, err)
+	require.NoError(m, err)
 	require.NoError(t, file.Sync())
 	_, err = file.Seek(0, 0)
 	require.NoError(t, err)
