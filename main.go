@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/sensu/sensu-go/types"
 	"github.com/sensu/sensu-plugins-go-library/sensu"
-	"os"
 	"strings"
 
 	"github.com/bluele/slack"
@@ -26,7 +25,6 @@ type HandlerConfig struct {
 }
 
 var (
-	stdin  *os.File
 	config = HandlerConfig{
 		PluginConfig: sensu.PluginConfig{
 			Name:     "sensu-slack-handler",
