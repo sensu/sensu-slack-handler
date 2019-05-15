@@ -136,7 +136,7 @@ func TestMain(t *testing.T) {
 	require.NoError(t, file.Sync())
 	_, err = file.Seek(0, 0)
 	require.NoError(t, err)
-	stdin = file
+	os.Stdin = file
 	requestReceived := false
 
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
