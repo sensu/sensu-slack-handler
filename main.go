@@ -82,29 +82,9 @@ func main() {
 	}
 }
 
-func checkArgs(event *types.Event) error {
+func checkArgs(_ *types.Event) error {
 	if len(config.SlackWebhookUrl.Value) == 0 {
 		return fmt.Errorf("--webhook-url or SENSU_SLACK_WEHBOOK_URL environment variable is required")
-	}
-
-	if event.Timestamp <= 0 {
-		return errors.New("timestamp is missing or must be greater than zero")
-	}
-
-	if event.Entity == nil {
-		return errors.New("entity is missing from event")
-	}
-
-	if !event.HasCheck() {
-		return errors.New("check is missing from event")
-	}
-
-	if err := event.Entity.Validate(); err != nil {
-		return err
-	}
-
-	if err := event.Check.Validate(); err != nil {
-		return err
 	}
 
 	return nil
