@@ -127,18 +127,19 @@
     "util/strings",
   ]
   pruneopts = "UT"
-  revision = "5.7.0"
+  revision = "32aea478ae74c3753710887d2ce2556b598d82bb"
+  version = "5.7.0"
 
 [[projects]]
-  digest = "1:ad992f22b75d0056f09fc95b1765afd5e1c5409e2360d282485ecbe351c240ec"
+  digest = "1:887b1d559ae6493b3873336a87df2ea0cfe18835706987bec6c7fea3df6002f2"
   name = "github.com/sensu/sensu-plugins-go-library"
   packages = [
     "args",
     "sensu",
   ]
   pruneopts = "UT"
-  revision = "8849554ccf2effb05b6534240d87483ee4ac72a6"
-  version = "0.2.0-alpha1"
+  revision = "a614f92aa018bd69a21d8d6e2d07244b8d8fbb05"
+  version = "0.2.0-alpha4"
 
 [[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"

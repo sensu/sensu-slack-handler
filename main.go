@@ -10,18 +10,12 @@ import (
 	"github.com/bluele/slack"
 )
 
-type HandlerConfigOption struct {
-	Value string
-	Path  string
-	Env   string
-}
-
 type HandlerConfig struct {
 	sensu.PluginConfig
-	SlackWebhookUrl HandlerConfigOption
-	SlackChannel    HandlerConfigOption
-	SlackUsername   HandlerConfigOption
-	SlackIconUrl    HandlerConfigOption
+	SlackWebhookUrl string
+	SlackChannel    string
+	SlackUsername   string
+	SlackIconUrl    string
 }
 
 var (
@@ -42,7 +36,7 @@ var (
 			Shorthand: "w",
 			Default:   "",
 			Usage:     "The webhook url to send messages to, defaults to value of SLACK_WEBHOOK_URL env variable",
-			Value:     &config.SlackWebhookUrl.Value,
+			Value:     &config.SlackWebhookUrl,
 		},
 		{
 			Path:      "channel",
@@ -51,7 +45,7 @@ var (
 			Shorthand: "c",
 			Default:   "#general",
 			Usage:     "The channel to post messages to",
-			Value:     &config.SlackChannel.Value,
+			Value:     &config.SlackChannel,
 		},
 		{
 			Path:      "username",
@@ -60,7 +54,7 @@ var (
 			Shorthand: "u",
 			Default:   "sensu",
 			Usage:     "The username that messages will be sent as",
-			Value:     &config.SlackUsername.Value,
+			Value:     &config.SlackUsername,
 		},
 		{
 			Path:      "icon-url",
@@ -69,7 +63,7 @@ var (
 			Shorthand: "i",
 			Default:   "http://s3-us-west-2.amazonaws.com/sensuapp.org/sensu.png",
 			Usage:     "A URL to an image to use as the user avatar",
-			Value:     &config.SlackIconUrl.Value,
+			Value:     &config.SlackIconUrl,
 		},
 	}
 )
@@ -83,7 +77,7 @@ func main() {
 }
 
 func checkArgs(_ *types.Event) error {
-	if len(config.SlackWebhookUrl.Value) == 0 {
+	if len(config.SlackWebhookUrl) == 0 {
 		return fmt.Errorf("--webhook-url or SENSU_SLACK_WEHBOOK_URL environment variable is required")
 	}
 
@@ -177,11 +171,11 @@ func messageAttachment(event *types.Event) *slack.Attachment {
 }
 
 func sendMessage(event *types.Event) error {
-	hook := slack.NewWebHook(config.SlackWebhookUrl.Value)
+	hook := slack.NewWebHook(config.SlackWebhookUrl)
 	return hook.PostMessage(&slack.WebHookPostPayload{
 		Attachments: []*slack.Attachment{messageAttachment(event)},
-		Channel:     config.SlackChannel.Value,
-		IconUrl:     config.SlackIconUrl.Value,
-		Username:    config.SlackUsername.Value,
+		Channel:     config.SlackChannel,
+		IconUrl:     config.SlackIconUrl,
+		Username:    config.SlackUsername,
 	})
 }
