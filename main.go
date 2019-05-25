@@ -37,7 +37,7 @@ var (
 	slackConfigOptions = []*sensu.PluginConfigOption{
 		{
 			Path:      webHookUrl,
-			Env:       "SENSU_SLACK_WEHBOOK_URL",
+			Env:       "SENSU_SLACK_WEBHOOK_URL",
 			Argument:  webHookUrl,
 			Shorthand: "w",
 			Default:   "",
