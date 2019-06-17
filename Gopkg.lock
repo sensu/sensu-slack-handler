@@ -118,7 +118,7 @@
   revision = "2315d5715e36303a941d907f038da7f7c44c773b"
 
 [[projects]]
-  digest = "1:dafb48fd4fb82b3e0a15b789da6da152180e9c28b1b8846058903eff5eadc01d"
+  digest = "1:be364f871284e2e8f787235fe31d904cf9958f64b7b06fd52f97bf9af2672f91"
   name = "github.com/sensu/sensu-go"
   packages = [
     "api/core/v2",
@@ -127,7 +127,19 @@
     "util/strings",
   ]
   pruneopts = "UT"
-  revision = "2daf9d442deec0afd2c6f53c183460e879a10646"
+  revision = "32aea478ae74c3753710887d2ce2556b598d82bb"
+  version = "5.7.0"
+
+[[projects]]
+  digest = "1:8cd72fbcf8f18cf753ca9c40723eaef3356e166437f33d219d977581b7024d14"
+  name = "github.com/sensu/sensu-plugins-go-library"
+  packages = [
+    "args",
+    "sensu",
+  ]
+  pruneopts = "UT"
+  revision = "a4d9fcd58e069a1c9e51984b9f4b466accd366c8"
+  version = "0.2.0"
 
 [[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
@@ -146,15 +158,15 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:c40d65817cdd41fac9aa7af8bed56927bb2d6d47e4fea566a74880f5c2b1c41e"
+  digest = "1:5da8ce674952566deae4dbc23d07c85caafc6cfa815b0b3e03e41979cedb8750"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "UT"
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
-  version = "v1.2.2"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -263,7 +275,7 @@
   input-imports = [
     "github.com/bluele/slack",
     "github.com/sensu/sensu-go/types",
-    "github.com/spf13/cobra",
+    "github.com/sensu/sensu-plugins-go-library/sensu",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
   ]

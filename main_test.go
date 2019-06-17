@@ -8,14 +8,14 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sensu/sensu-go/types"
+	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestFormattedEventAction(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 
 	action := formattedEventAction(event)
 	assert.Equal("RESOLVED", action)
@@ -43,14 +43,14 @@ func TestChomp(t *testing.T) {
 
 func TestEventKey(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 	eventKey := eventKey(event)
 	assert.Equal("entity1/check1", eventKey)
 }
 
 func TestEventSummary(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 	event.Check.Output = "disk is full"
 
 	eventKey := eventSummary(event, 100)
@@ -62,7 +62,7 @@ func TestEventSummary(t *testing.T) {
 
 func TestFormattedMessage(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 	event.Check.Output = "disk is full"
 	event.Check.Status = 1
 	formattedMsg := formattedMessage(event)
@@ -71,7 +71,7 @@ func TestFormattedMessage(t *testing.T) {
 
 func TestMessageColor(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 
 	event.Check.Status = 0
 	color := messageColor(event)
@@ -88,7 +88,7 @@ func TestMessageColor(t *testing.T) {
 
 func TestMessageStatus(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 
 	event.Check.Status = 0
 	status := messageStatus(event)
@@ -105,7 +105,7 @@ func TestMessageStatus(t *testing.T) {
 
 func TestSendMessage(t *testing.T) {
 	assert := assert.New(t)
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := ioutil.ReadAll(r.Body)
@@ -116,8 +116,8 @@ func TestSendMessage(t *testing.T) {
 		require.NoError(t, err)
 	}))
 
-	config.SlackWebhookUrl.Value = apiStub.URL
-	config.SlackChannel.Value = "#test"
+	config.SlackWebhookUrl = apiStub.URL
+	config.SlackChannel = "#test"
 	err := sendMessage(event)
 	assert.NoError(err)
 }
@@ -129,14 +129,14 @@ func TestMain(t *testing.T) {
 		_ = os.Remove(file.Name())
 	}()
 
-	event := types.FixtureEvent("entity1", "check1")
+	event := corev2.FixtureEvent("entity1", "check1")
 	eventJSON, _ := json.Marshal(event)
 	_, err := file.WriteString(string(eventJSON))
 	require.NoError(t, err)
 	require.NoError(t, file.Sync())
 	_, err = file.Seek(0, 0)
 	require.NoError(t, err)
-	stdin = file
+	os.Stdin = file
 	requestReceived := false
 
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
