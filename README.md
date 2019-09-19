@@ -1,3 +1,5 @@
+[![Bonsai Asset Badge](https://img.shields.io/badge/Sensu%20Slack%20Handler-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler) [![Build Status](https://travis-ci.org/sensu/sensu-slack-handler.svg?branch=master)](https://travis-ci.org/sensu/sensu-slack-handler)
+
 # Sensu Go Slack Handler
 
 The Sensu Slack handler is a [Sensu Event Handler][1] that sends event data to
