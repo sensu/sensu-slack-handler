@@ -203,3 +203,4 @@ go build -o /usr/local/bin/sensu-slack-handler main.go
 
 [1]: https://docs.sensu.io/sensu-go/5.0/reference/handlers/#how-do-sensu-handlers-work
 [2]: https://github.com/sensu/sensu-slack-handler/releases
+[3]: #asset-registration
