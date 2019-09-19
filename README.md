@@ -9,68 +9,11 @@ a configured Slack channel.
 
 ### Asset registration
 
-Assets are the best way to make use of this handler. If you're not using an asset, please consider doing so! You can find this asset on the [Bonsai Asset Index](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler).
+Assets are the best way to make use of this handler. If you're not using an asset, please consider doing so! If you're using sensuctl 5.13 or later, you can use the following command to add the asset: 
 
-#### Example asset definitions:
+`sensuctl asset add sensu/sensu-slack-handler:1.0.3`
 
-**sensu-slack-handler-asset.json**
-
-```json
-{
-  "type": "Asset",
-  "api_version": "core/v2",
-  "metadata": {
-    "name": "sensu-slack-handler_linux_amd64",
-    "labels": null,
-    "annotations": {
-      "io.sensu.bonsai.url": "https://bonsai.sensu.io/assets/sensu/sensu-slack-handler",
-      "io.sensu.bonsai.api_url": "https://bonsai.sensu.io/api/v1/assets/sensu/sensu-slack-handler",
-      "io.sensu.bonsai.tier": "Supported",
-      "io.sensu.bonsai.version": "1.0.3",
-      "io.sensu.bonsai.namespace": "sensu",
-      "io.sensu.bonsai.name": "sensu-slack-handler",
-      "io.sensu.bonsai.tags": ""
-    }
-  },
-  "spec": {
-    "url": "https://assets.bonsai.sensu.io/3149de09525d5e042a83edbb6eb46152b02b5a65/sensu-slack-handler_1.0.3_linux_amd64.tar.gz",
-    "sha512": "68720865127fbc7c2fe16ca4d7bbf2a187a2df703f4b4acae1c93e8a66556e9079e1270521999b5871473e6c851f51b34097c54fdb8d18eedb7064df9019adc8",
-    "filters": [
-      "entity.system.os == 'linux'",
-      "entity.system.arch == 'amd64'"
-    ]
-  }
-}
-```
-
-`sensuctl create -f sensu-slack-handler-asset.json`
-
-**sensu-slack-handler-asset.yml**
-
-```yaml
----
-type: Asset
-api_version: core/v2
-metadata:
-  name: sensu-slack-handler_linux_amd64
-  labels: 
-  annotations:
-    io.sensu.bonsai.url: https://bonsai.sensu.io/assets/sensu/sensu-slack-handler
-    io.sensu.bonsai.api_url: https://bonsai.sensu.io/api/v1/assets/sensu/sensu-slack-handler
-    io.sensu.bonsai.tier: Supported
-    io.sensu.bonsai.version: 1.0.3
-    io.sensu.bonsai.namespace: sensu
-    io.sensu.bonsai.name: sensu-slack-handler
-    io.sensu.bonsai.tags: ''
-spec:
-  url: https://assets.bonsai.sensu.io/3149de09525d5e042a83edbb6eb46152b02b5a65/sensu-slack-handler_1.0.3_linux_amd64.tar.gz
-  sha512: 68720865127fbc7c2fe16ca4d7bbf2a187a2df703f4b4acae1c93e8a66556e9079e1270521999b5871473e6c851f51b34097c54fdb8d18eedb7064df9019adc8
-  filters:
-  - entity.system.os == 'linux'
-  - entity.system.arch == 'amd64'
-```
-
-`sensuctl create -f sensu-slack-handler-asset.yml`
+If you're using an earlier version of sensuctl, you can find the asset on the [Bonsai Asset Index](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler).
 
 #### Example Sensu Go handler definition:
 
