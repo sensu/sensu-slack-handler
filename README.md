@@ -13,7 +13,7 @@ Assets are the best way to make use of this handler. If you're not using an asse
 
 `sensuctl asset add sensu/sensu-slack-handler`
 
-If you're using an earlier version of sensuctl, you can find the asset on the [Bonsai Asset Index](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler).
+If you're using an earlier version of sensuctl, you can download the asset definition from [this project's Bonsai Asset Index page](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler).
 
 #### Example Sensu Go handler definition:
 
