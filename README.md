@@ -38,7 +38,7 @@ If you're using an earlier version of sensuctl, you can download the asset defin
         "filters": [
             "is_incident"
         ],
-        "runtime_assets": ["sensu-slack-handler_linux_amd64"]
+        "runtime_assets": ["sensu-slack-handler"]
     }
 }
 ```
@@ -63,7 +63,7 @@ spec:
   filters:
   - is_incident
   runtime_assets:
-  - sensu-slack-handler_linux_amd64
+  - sensu-slack-handler
 ```
 
 `sensuctl create -f slack-handler.yml`
