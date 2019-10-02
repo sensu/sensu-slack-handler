@@ -182,7 +182,7 @@
         "foo": "bar"
       },
       "annotations": {
-        "sensu.io/plugins/slack/config/channel": "#k8s-alertmanager-test",
+        "sensu.io/plugins/slack/config/channel": "#demo-service-a",
         "sensu.io/plugins/slack/config/username": "Sensu Go FTW!"
       }
     }
