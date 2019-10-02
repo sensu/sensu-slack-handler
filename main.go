@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
+
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/sensu/sensu-plugins-go-library/sensu"
-	"strings"
 
 	"github.com/bluele/slack"
 )
@@ -116,6 +118,17 @@ func formattedMessage(event *corev2.Event) string {
 	return fmt.Sprintf("%s - %s", formattedEventAction(event), eventSummary(event, 100))
 }
 
+func labelsToString(event *corev2.Event) string {
+	buf := bytes.Buffer{}
+	if event.Check.Labels == nil {
+		return ""
+	}
+	for k, v := range event.Check.Labels {
+		fmt.Fprintf(&buf, "%s=%s\n", k, v)
+	}
+	return buf.String()
+}
+
 func messageColor(event *corev2.Event) string {
 	switch event.Check.Status {
 	case 0:
@@ -159,6 +172,11 @@ func messageAttachment(event *corev2.Event) *slack.Attachment {
 				Title: "Check",
 				Value: event.Check.Name,
 				Short: true,
+			},
+			{
+				Title: "Labels",
+				Value: labelsToString(event),
+				Short: false,
 			},
 		},
 	}
