@@ -153,7 +153,7 @@ func attachCheckLabels(event *corev2.Event, attachment *slack.Attachment) {
 	attachment.Fields = append(attachment.Fields, &slack.AttachmentField{
 		Title: "Check Labels",
 		Value: buf.String(),
-		Short: true,
+		Short: false,
 	})
 
 	return
@@ -172,7 +172,7 @@ func attachEntityLabels(event *corev2.Event, attachment *slack.Attachment) {
 	attachment.Fields = append(attachment.Fields, &slack.AttachmentField{
 		Title: "Entity Labels",
 		Value: buf.String(),
-		Short: true,
+		Short: false,
 	})
 
 	return
