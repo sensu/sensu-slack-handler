@@ -13,17 +13,21 @@ import (
 
 type HandlerConfig struct {
 	sensu.PluginConfig
-	SlackWebhookUrl string
-	SlackChannel    string
-	SlackUsername   string
-	SlackIconUrl    string
+	SlackWebhookUrl          string
+	SlackChannel             string
+	SlackUsername            string
+	SlackIconUrl             string
+	SlackIncludeCheckLabels  bool
+	SlackIncludeEntityLabels bool
 }
 
 const (
-	webHookUrl = "webhook-url"
-	channel    = "channel"
-	userName   = "username"
-	iconUrl    = "icon-url"
+	webHookUrl      = "webhook-url"
+	channel         = "channel"
+	userName        = "username"
+	iconUrl         = "icon-url"
+	incCheckLabels  = "include-check-labels"
+	incEntityLabels = "include-entity-labels"
 )
 
 var (
@@ -73,6 +77,24 @@ var (
 			Usage:     "A URL to an image to use as the user avatar",
 			Value:     &config.SlackIconUrl,
 		},
+		{
+			Path:      incCheckLabels,
+			Env:       "SENSU_SLACK_INCLUDE_CHECK_LABELS",
+			Argument:  incCheckLabels,
+			Shorthand: "l",
+			Default:   false,
+			Usage:     "Include check labels in slack message?",
+			Value:     &config.SlackIncludeCheckLabels,
+		},
+		{
+			Path:      incEntityLabels,
+			Env:       "SENSU_SLACK_INCLUDE_ENTITY_LABELS",
+			Argument:  incEntityLabels,
+			Shorthand: "e",
+			Default:   false,
+			Usage:     "Include entity labels in slack message?",
+			Value:     &config.SlackIncludeEntityLabels,
+		},
 	}
 )
 
@@ -118,15 +140,42 @@ func formattedMessage(event *corev2.Event) string {
 	return fmt.Sprintf("%s - %s", formattedEventAction(event), eventSummary(event, 100))
 }
 
-func labelsToString(event *corev2.Event) string {
-	buf := bytes.Buffer{}
+func attachCheckLabels(event *corev2.Event, attachment *slack.Attachment) {
 	if event.Check.Labels == nil {
-		return ""
+		return
 	}
+
+	buf := bytes.Buffer{}
 	for k, v := range event.Check.Labels {
 		fmt.Fprintf(&buf, "%s=%s\n", k, v)
 	}
-	return buf.String()
+
+	attachment.Fields = append(attachment.Fields, &slack.AttachmentField{
+		Title: "Check Labels",
+		Value: buf.String(),
+		Short: true,
+	})
+
+	return
+}
+
+func attachEntityLabels(event *corev2.Event, attachment *slack.Attachment) {
+	if event.Entity.Labels == nil {
+		return
+	}
+
+	buf := bytes.Buffer{}
+	for k, v := range event.Entity.Labels {
+		fmt.Fprintf(&buf, "%s=%s\n", k, v)
+	}
+
+	attachment.Fields = append(attachment.Fields, &slack.AttachmentField{
+		Title: "Entity Labels",
+		Value: buf.String(),
+		Short: true,
+	})
+
+	return
 }
 
 func messageColor(event *corev2.Event) string {
@@ -173,13 +222,17 @@ func messageAttachment(event *corev2.Event) *slack.Attachment {
 				Value: event.Check.Name,
 				Short: true,
 			},
-			{
-				Title: "Labels",
-				Value: labelsToString(event),
-				Short: false,
-			},
 		},
 	}
+
+	if config.SlackIncludeEntityLabels {
+		attachEntityLabels(event, attachment)
+	}
+
+	if config.SlackIncludeCheckLabels {
+		attachCheckLabels(event, attachment)
+	}
+
 	return attachment
 }
 
