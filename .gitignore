@@ -17,3 +17,6 @@ vendor/
 # deploy
 bonsai/
 dist/
+
+# binary
+sensu-slack-handler
