@@ -52,7 +52,8 @@
       "name": "70faa7c58706",
       "namespace": "default",
       "labels": {
-        "region": "us-west-1"
+        "region": "us-west-1",
+        "key": "secretkey"
       }
     }
   },
@@ -179,11 +180,12 @@
       "name": "helloworld",
       "namespace": "default",
       "labels": {
-        "foo": "bar"
+        "foo": "bar",
+        "password": "secretword"
       },
       "annotations": {
-        "sensu.io/plugins/slack/config/channel": "#demo-service-a",
-        "sensu.io/plugins/slack/config/username": "Sensu Go FTW!"
+        "sensu.io/plugins/slack/config/channel": "#ephur-test",
+        "sensu.io/plugins/slack/config/username": "Sensu Go Build Test"
       }
     }
   },
