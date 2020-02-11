@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/bluele/slack"
@@ -15,14 +16,18 @@ type HandlerConfig struct {
 	slackwebHookURL string
 	slackChannel    string
 	slackUsername   string
-	slackiconURL    string
+	slackIconURL    string
 }
 
 const (
 	webHookURL = "webhook-url"
 	channel    = "channel"
-	userName   = "username"
+	username   = "username"
 	iconURL    = "icon-url"
+
+	defaultChannel  = "#general"
+	defaultIconURL  = "https://www.sensu.io/img/sensu-logo.png"
+	defaultUsername = "sensu"
 )
 
 var (
@@ -48,16 +53,16 @@ var (
 			Env:       "SLACK_CHANNEL",
 			Argument:  channel,
 			Shorthand: "c",
-			Default:   "#general",
+			Default:   defaultChannel,
 			Usage:     "The channel to post messages to",
 			Value:     &config.slackChannel,
 		},
 		{
-			Path:      userName,
+			Path:      username,
 			Env:       "SLACK_USERNAME",
-			Argument:  userName,
+			Argument:  username,
 			Shorthand: "u",
-			Default:   "sensu",
+			Default:   defaultUsername,
 			Usage:     "The username that messages will be sent as",
 			Value:     &config.slackUsername,
 		},
@@ -66,9 +71,9 @@ var (
 			Env:       "SLACK_ICON_URL",
 			Argument:  iconURL,
 			Shorthand: "i",
-			Default:   "https://www.sensu.io/img/sensu-logo.png",
+			Default:   defaultIconURL,
 			Usage:     "A URL to an image to use as the user avatar",
-			Value:     &config.slackiconURL,
+			Value:     &config.slackIconURL,
 		},
 	}
 )
@@ -79,8 +84,22 @@ func main() {
 }
 
 func checkArgs(_ *corev2.Event) error {
+	// Support deprecated environment variables
+	if webhook := os.Getenv("SENSU_SLACK_WEBHOOK_URL"); webhook != "" {
+		config.slackwebHookURL = webhook
+	}
+	if channel := os.Getenv("SENSU_SLACK_CHANNEL"); channel != "" && config.slackChannel == defaultChannel {
+		config.slackChannel = channel
+	}
+	if username := os.Getenv("SENSU_SLACK_USERNAME"); username != "" && config.slackUsername == defaultUsername {
+		config.slackUsername = username
+	}
+	if icon := os.Getenv("SENSU_SLACK_ICON_URL"); icon != "" && config.slackIconURL == defaultIconURL {
+		config.slackIconURL = icon
+	}
+
 	if len(config.slackwebHookURL) == 0 {
-		return fmt.Errorf("--webhook-url or SLACK_WEBHOOK_URL environment variable is required")
+		return fmt.Errorf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL)
 	}
 
 	return nil
@@ -169,7 +188,7 @@ func sendMessage(event *corev2.Event) error {
 	return hook.PostMessage(&slack.WebHookPostPayload{
 		Attachments: []*slack.Attachment{messageAttachment(event)},
 		Channel:     config.slackChannel,
-		IconUrl:     config.slackiconURL,
+		IconUrl:     config.slackIconURL,
 		Username:    config.slackUsername,
 	})
 }
