@@ -45,7 +45,7 @@ var (
 			Env:       "SLACK_WEBHOOK_URL",
 			Argument:  webHookURL,
 			Shorthand: "w",
-			Usage:     "The webhook url to send messages to, defaults to value of SLACK_WEBHOOK_URL env variable",
+			Usage:     "The webhook url to send messages to",
 			Value:     &config.slackwebHookURL,
 		},
 		{
