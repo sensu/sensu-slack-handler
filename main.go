@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	corev2 "github.com/sensu/sensu-go/api/core/v2"
-	"github.com/sensu/sensu-plugins-go-library/sensu"
 	"strings"
+
+	"github.com/sensu-community/sensu-plugin-sdk/sensu"
+	corev2 "github.com/sensu/sensu-go/api/core/v2"
 
 	"github.com/bluele/slack"
 )
