@@ -4,25 +4,25 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bluele/slack"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
-
-	"github.com/bluele/slack"
 )
 
+// HandlerConfig contains the Slack handler configuration
 type HandlerConfig struct {
 	sensu.PluginConfig
-	SlackWebhookUrl string
-	SlackChannel    string
-	SlackUsername   string
-	SlackIconUrl    string
+	slackwebHookURL string
+	slackChannel    string
+	slackUsername   string
+	slackiconURL    string
 }
 
 const (
-	webHookUrl = "webhook-url"
+	webHookURL = "webhook-url"
 	channel    = "channel"
 	userName   = "username"
-	iconUrl    = "icon-url"
+	iconURL    = "icon-url"
 )
 
 var (
@@ -30,47 +30,45 @@ var (
 		PluginConfig: sensu.PluginConfig{
 			Name:     "sensu-slack-handler",
 			Short:    "The Sensu Go Slack handler for notifying a channel",
-			Timeout:  10,
 			Keyspace: "sensu.io/plugins/slack/config",
 		},
 	}
 
 	slackConfigOptions = []*sensu.PluginConfigOption{
 		{
-			Path:      webHookUrl,
-			Env:       "SENSU_SLACK_WEBHOOK_URL",
-			Argument:  webHookUrl,
+			Path:      webHookURL,
+			Env:       "SLACK_WEBHOOK_URL",
+			Argument:  webHookURL,
 			Shorthand: "w",
-			Default:   "",
 			Usage:     "The webhook url to send messages to, defaults to value of SLACK_WEBHOOK_URL env variable",
-			Value:     &config.SlackWebhookUrl,
+			Value:     &config.slackwebHookURL,
 		},
 		{
 			Path:      channel,
-			Env:       "SENSU_SLACK_CHANNEL",
+			Env:       "SLACK_CHANNEL",
 			Argument:  channel,
 			Shorthand: "c",
 			Default:   "#general",
 			Usage:     "The channel to post messages to",
-			Value:     &config.SlackChannel,
+			Value:     &config.slackChannel,
 		},
 		{
 			Path:      userName,
-			Env:       "SENSU_SLACK_USERNAME",
+			Env:       "SLACK_USERNAME",
 			Argument:  userName,
 			Shorthand: "u",
 			Default:   "sensu",
 			Usage:     "The username that messages will be sent as",
-			Value:     &config.SlackUsername,
+			Value:     &config.slackUsername,
 		},
 		{
-			Path:      iconUrl,
-			Env:       "SENSU_SLACK_ICON_URL",
-			Argument:  iconUrl,
+			Path:      iconURL,
+			Env:       "SLACK_ICON_URL",
+			Argument:  iconURL,
 			Shorthand: "i",
-			Default:   "http://s3-us-west-2.amazonaws.com/sensuapp.org/sensu.png",
+			Default:   "https://www.sensu.io/img/sensu-logo.png",
 			Usage:     "A URL to an image to use as the user avatar",
-			Value:     &config.SlackIconUrl,
+			Value:     &config.slackiconURL,
 		},
 	}
 )
@@ -81,8 +79,8 @@ func main() {
 }
 
 func checkArgs(_ *corev2.Event) error {
-	if len(config.SlackWebhookUrl) == 0 {
-		return fmt.Errorf("--webhook-url or SENSU_SLACK_WEBHOOK_URL environment variable is required")
+	if len(config.slackwebHookURL) == 0 {
+		return fmt.Errorf("--webhook-url or SLACK_WEBHOOK_URL environment variable is required")
 	}
 
 	return nil
@@ -167,11 +165,11 @@ func messageAttachment(event *corev2.Event) *slack.Attachment {
 }
 
 func sendMessage(event *corev2.Event) error {
-	hook := slack.NewWebHook(config.SlackWebhookUrl)
+	hook := slack.NewWebHook(config.slackwebHookURL)
 	return hook.PostMessage(&slack.WebHookPostPayload{
 		Attachments: []*slack.Attachment{messageAttachment(event)},
-		Channel:     config.SlackChannel,
-		IconUrl:     config.SlackIconUrl,
-		Username:    config.SlackUsername,
+		Channel:     config.slackChannel,
+		IconUrl:     config.slackiconURL,
+		Username:    config.slackUsername,
 	})
 }
