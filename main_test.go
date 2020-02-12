@@ -116,8 +116,8 @@ func TestSendMessage(t *testing.T) {
 		require.NoError(t, err)
 	}))
 
-	config.SlackWebhookUrl = apiStub.URL
-	config.SlackChannel = "#test"
+	config.slackwebHookURL = apiStub.URL
+	config.slackChannel = "#test"
 	err := sendMessage(event)
 	assert.NoError(err)
 }
