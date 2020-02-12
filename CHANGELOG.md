@@ -7,12 +7,21 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed
-- Updated travis, goreleaser configurations.
-- Updated license.
+## [1.1.0] - 2020-02-12
 
-### Removed
-- Removed redundant post deploy scripts for travis.
+### Added
+- Config options can now be overridden via annotations.
+
+### Changed
+- Migrated from go dep to go modules.
+- Migrated the build pipeline from Travis to Github Actions.
+- Updated license.
+- Upgraded to sensu-plugin-sdk.
+- Updated the default icon URL.
+
+### Deprecated
+- Environment variables prefixed with `SENSU_` are now deprecated and will be
+removed in a future release.
 
 ## [1.0.3] - 2019-01-09
 
