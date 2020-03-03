@@ -7,27 +7,31 @@ import (
 
 	"github.com/bluele/slack"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
+	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 )
 
 // HandlerConfig contains the Slack handler configuration
 type HandlerConfig struct {
 	sensu.PluginConfig
-	slackwebHookURL string
-	slackChannel    string
-	slackUsername   string
-	slackIconURL    string
+	slackwebHookURL          string
+	slackChannel             string
+	slackUsername            string
+	slackIconURL             string
+	slackDescriptionTemplate string
 }
 
 const (
-	webHookURL = "webhook-url"
-	channel    = "channel"
-	username   = "username"
-	iconURL    = "icon-url"
+	webHookURL          = "webhook-url"
+	channel             = "channel"
+	username            = "username"
+	iconURL             = "icon-url"
+	descriptionTemplate = "description-template"
 
 	defaultChannel  = "#general"
 	defaultIconURL  = "https://www.sensu.io/img/sensu-logo.png"
 	defaultUsername = "sensu"
+	defaultTemplate = "{{ .Check.Output }}"
 )
 
 var (
@@ -74,6 +78,15 @@ var (
 			Default:   defaultIconURL,
 			Usage:     "A URL to an image to use as the user avatar",
 			Value:     &config.slackIconURL,
+		},
+		{
+			Path:      descriptionTemplate,
+			Env:       "SLACK_DESCRIPTION_TEMPLATE",
+			Argument:  descriptionTemplate,
+			Shorthand: "t",
+			Default:   defaultTemplate,
+			Usage:     "The Slack notification output template, in Golang text/template format",
+			Value:     &config.slackDescriptionTemplate,
 		},
 	}
 )
@@ -157,9 +170,13 @@ func messageStatus(event *corev2.Event) string {
 }
 
 func messageAttachment(event *corev2.Event) *slack.Attachment {
+	description, err := templates.EvalTemplate("description", config.slackDescriptionTemplate, event)
+	if err != nil {
+		fmt.Errorf("Error processing template: %s", err)
+	}
 	attachment := &slack.Attachment{
 		Title:    "Description",
-		Text:     event.Check.Output,
+		Text:     description,
 		Fallback: formattedMessage(event),
 		Color:    messageColor(event),
 		Fields: []*slack.AttachmentField{
