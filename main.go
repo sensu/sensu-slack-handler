@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
-	"text/template"
 
 	"github.com/bluele/slack"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
+	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 )
 
@@ -148,19 +147,6 @@ func formattedMessage(event *corev2.Event) string {
 	return fmt.Sprintf("%s - %s", formattedEventAction(event), eventSummary(event, 100))
 }
 
-func templatedDescription(event *corev2.Event, descriptionTemplate string) string {
-	output := new(bytes.Buffer)
-	t, err := template.New("slackMessageDescription").Parse(descriptionTemplate)
-	if err != nil {
-		fmt.Errorf("Error parsing description template: %s", err)
-	}
-	err = t.Execute(output, event)
-	if err != nil {
-		fmt.Errorf("Error processing description template: %s", err)
-	}
-	return output.String()
-}
-
 func messageColor(event *corev2.Event) string {
 	switch event.Check.Status {
 	case 0:
@@ -184,9 +170,13 @@ func messageStatus(event *corev2.Event) string {
 }
 
 func messageAttachment(event *corev2.Event) *slack.Attachment {
+	description, err := templates.EvalTemplate("description", config.slackDescriptionTemplate, event)
+	if err != nil {
+		fmt.Errorf("Error processing template: %s", err)
+	}
 	attachment := &slack.Attachment{
 		Title:    "Description",
-		Text:     templatedDescription(event, config.slackDescriptionTemplate),
+		Text:     description,
 		Fallback: formattedMessage(event),
 		Color:    messageColor(event),
 		Fields: []*slack.AttachmentField{
