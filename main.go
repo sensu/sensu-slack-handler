@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
+	"text/template"
 
 	"github.com/bluele/slack"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
@@ -13,21 +15,24 @@ import (
 // HandlerConfig contains the Slack handler configuration
 type HandlerConfig struct {
 	sensu.PluginConfig
-	slackwebHookURL string
-	slackChannel    string
-	slackUsername   string
-	slackIconURL    string
+	slackwebHookURL          string
+	slackChannel             string
+	slackUsername            string
+	slackIconURL             string
+	slackDescriptionTemplate string
 }
 
 const (
-	webHookURL = "webhook-url"
-	channel    = "channel"
-	username   = "username"
-	iconURL    = "icon-url"
+	webHookURL          = "webhook-url"
+	channel             = "channel"
+	username            = "username"
+	iconURL             = "icon-url"
+	descriptionTemplate = "description-template"
 
 	defaultChannel  = "#general"
 	defaultIconURL  = "https://www.sensu.io/img/sensu-logo.png"
 	defaultUsername = "sensu"
+	defaultTemplate = "{{ .Check.Output }}"
 )
 
 var (
@@ -74,6 +79,15 @@ var (
 			Default:   defaultIconURL,
 			Usage:     "A URL to an image to use as the user avatar",
 			Value:     &config.slackIconURL,
+		},
+		{
+			Path:      descriptionTemplate,
+			Env:       "SLACK_DESCRIPTION_TEMPLATE",
+			Argument:  descriptionTemplate,
+			Shorthand: "t",
+			Default:   defaultTemplate,
+			Usage:     "The Slack notification output template, in Golang text/template format",
+			Value:     &config.slackDescriptionTemplate,
 		},
 	}
 )
@@ -134,6 +148,19 @@ func formattedMessage(event *corev2.Event) string {
 	return fmt.Sprintf("%s - %s", formattedEventAction(event), eventSummary(event, 100))
 }
 
+func templatedDescription(event *corev2.Event, descriptionTemplate string) string {
+	output := new(bytes.Buffer)
+	t, err := template.New("slackMessageDescription").Parse(descriptionTemplate)
+	if err != nil {
+		fmt.Errorf("Error parsing description template: %s", err)
+	}
+	err = t.Execute(output, event)
+	if err != nil {
+		fmt.Errorf("Error processing description template: %s", err)
+	}
+	return output.String()
+}
+
 func messageColor(event *corev2.Event) string {
 	switch event.Check.Status {
 	case 0:
@@ -159,7 +186,7 @@ func messageStatus(event *corev2.Event) string {
 func messageAttachment(event *corev2.Event) *slack.Attachment {
 	attachment := &slack.Attachment{
 		Title:    "Description",
-		Text:     event.Check.Output,
+		Text:     templatedDescription(event, config.slackDescriptionTemplate),
 		Fallback: formattedMessage(event),
 		Color:    messageColor(event),
 		Fields: []*slack.AttachmentField{
