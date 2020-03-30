@@ -7,7 +7,17 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [1.1.0] - 2020-02-12
+## [1.3.1] - 2020-03-30
+
+### Changed
+- Fixed README and CHANGELOG
+
+## [1.3.0] - 2020-03-30
+
+### Added
+- Custom output templates using the templating package
+
+## [1.2.0] - 2020-02-12
 
 ### Added
 - Config options can now be overridden via annotations.

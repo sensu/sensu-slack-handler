@@ -36,6 +36,7 @@ Flags:
   -i, --icon-url string      A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
   -u, --username string      The username that messages will be sent as (default "sensu")
   -w, --webhook-url string   The webhook url to send messages to
+  -t, --descriptionTemplate  The Slack notification output template, in Golang text/template format
 ```
 
 ## Configuration
