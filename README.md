@@ -113,6 +113,13 @@ annotations:
   sensu.io/plugins/slack/config/channel: '#monitoring'
 ```
 
+### Proxy Support
+
+This handler supports the use of the environment variables HTTP_PROXY,
+HTTPS_PROXY, and NO_PROXY (or the lowercase versions thereof). HTTPS_PROXY takes
+precedence over HTTP_PROXY for https requests.  The environment values may be
+either a complete URL or a "host[:port]", in which case the "http" scheme is assumed.
+
 ## Installing from source and contributing
 
 Download the latest version of the sensu-slack-handler from [releases][4],
