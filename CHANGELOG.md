@@ -7,6 +7,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Support for newline (\n) expansion in description template
+
 ## [1.3.1] - 2020-03-30
 
 ### Changed
