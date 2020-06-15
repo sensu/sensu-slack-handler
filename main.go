@@ -174,6 +174,7 @@ func messageAttachment(event *corev2.Event) *slack.Attachment {
 	if err != nil {
 		fmt.Errorf("Error processing template: %s", err)
 	}
+	description = strings.Replace(description, `\n`, "\n", -1)
 	attachment := &slack.Attachment{
 		Title:    "Description",
 		Text:     description,

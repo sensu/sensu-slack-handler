@@ -31,12 +31,12 @@ Available Commands:
   version     Print the version number of this plugin
 
 Flags:
-  -c, --channel string       The channel to post messages to (default "#general")
-  -h, --help                 help for sensu-slack-handler
-  -i, --icon-url string      A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
-  -u, --username string      The username that messages will be sent as (default "sensu")
-  -w, --webhook-url string   The webhook url to send messages to
-  -t, --descriptionTemplate  The Slack notification output template, in Golang text/template format
+  -c, --channel string                The channel to post messages to (default "#general")
+  -t, --description-template string   The Slack notification output template, in Golang text/template format (default "{{ .Check.Output }}")
+  -h, --help                          help for sensu-slack-handler
+  -i, --icon-url string               A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
+  -u, --username string               The username that messages will be sent as (default "sensu")
+  -w, --webhook-url string            The webhook url to send messages to
 ```
 
 ## Configuration
@@ -112,6 +112,13 @@ entity, you could use the following sensu-agent configuration snippet:
 annotations:
   sensu.io/plugins/slack/config/channel: '#monitoring'
 ```
+
+### Proxy Support
+
+This handler supports the use of the environment variables HTTP_PROXY,
+HTTPS_PROXY, and NO_PROXY (or the lowercase versions thereof). HTTPS_PROXY takes
+precedence over HTTP_PROXY for https requests.  The environment values may be
+either a complete URL or a "host[:port]", in which case the "http" scheme is assumed.
 
 ## Installing from source and contributing
 
