@@ -74,6 +74,7 @@ spec:
     secret: slack-webhook-url
   timeout: 10
 ```
+**Note**: The library used in the Sensu SDK for this plugin requires that if your Slack webhook URL is listed as an environment variable, the URL cannot be surrounded by quotes. 
 
 **Security Note**: The Slack webhook URL should always be treated as a security
 sensitive configuration option and in this example, it is loaded into the
