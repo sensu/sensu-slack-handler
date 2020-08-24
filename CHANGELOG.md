@@ -6,6 +6,9 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Update to use plugin sdk 0.8.0
+- Mark --webhook-url argument as secret, so if set via SLACK_WEBHOOK_URL, value will not leak into usage message.
 
 ## [1.3.2] - 2020-05-18
 
