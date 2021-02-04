@@ -49,6 +49,7 @@ var (
 			Env:       "SLACK_WEBHOOK_URL",
 			Argument:  webHookURL,
 			Shorthand: "w",
+			Secret:    true,
 			Usage:     "The webhook url to send messages to",
 			Value:     &config.slackwebHookURL,
 		},
