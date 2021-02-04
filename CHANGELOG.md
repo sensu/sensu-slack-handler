@@ -9,6 +9,15 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 ### Changed
 - Update to use plugin sdk 0.8.0
 - Mark --webhook-url argument as secret, so if set via SLACK_WEBHOOK_URL, value will not leak into usage message.
+- Q1 '21 handler maintenance:
+  - Updated modules (go get -u && go mod tidy)
+  - Updated GitHub Actions: Added Lint action
+  - Updated build to Go 1.14
+  - Fix linter error by having template error go to stdout
+  - Change return from sendMessage to capture and embellish any error
+  - Output log message that message was sent to Slack
+  - Fix TestSendMessage to include template
+  - README updates
 
 ## [1.3.2] - 2020-05-18
 
