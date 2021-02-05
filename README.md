@@ -4,12 +4,15 @@
 
 - [Overview](#overview)
 - [Usage examples](#usage-examples)
+  - [Help output](#help-output)
+  - [Environment variables](#environment-variables)
+  - [Templates](#templates)
+  - [Annotations](#annotations)
 - [Configuration](#configuration)
   - [Asset registration](#asset-registration)
   - [Handler definition](#handler-definition)
   - [Check definition](#check-definition)
-- [Installation from source and
-  contributing](#installation-from-source-and-contributing)
+- [Installation from source and contributing](#installation-from-source-and-contributing)
 
 ## Overview
 
@@ -18,6 +21,8 @@ The [Sensu Slack Handler][0] is a [Sensu Event Handler][3] that sends event data
 to a configured Slack channel.
 
 ## Usage examples
+
+### Help output
 
 Help:
 
@@ -37,6 +42,63 @@ Flags:
   -i, --icon-url string               A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
   -u, --username string               The username that messages will be sent as (default "sensu")
   -w, --webhook-url string            The webhook url to send messages to
+```
+
+### Environment variables
+
+|Argument               |Environment Variable       |
+|-----------------------|---------------------------|
+|--webhook-url          |SLACK_WEBHOOK_URL          |
+|--channel              |SLACK_CHANNEL              |
+|--username             |SLACK_USERNAME             |
+|--icon-url             |SLACK_ICON_URL             |
+|--description-template |SLACK_DESCRIPTION_TEMPLATE |
+
+
+**Security Note:** Care should be taken to not expose the webhook URL for this handler by specifying it
+on the command line or by directly setting the environment variable in the handler definition.  It is
+suggested to make use of [secrets management][7] to surface it as an environment variable.  The
+handler definition above references it as a secret.  Below is an example secrets definition that make
+use of the built-in [env secrets provider][8].
+
+```yml
+---
+type: Secret
+api_version: secrets/v1
+metadata:
+  name: slack-webhook-url
+spec:
+  provider: env
+  id: SLACK_WEBHOOK_URL
+```
+
+### Templates
+
+This handler provides options for using templates to populate the values
+provided by the event in the message sent via SNS. More information on
+template syntax and format can be found in [the documentation][9]
+
+
+### Annotations
+
+All arguments for this handler are tunable on a per entity or check basis based
+on annotations. The annotations keyspace for this handler is
+`sensu.io/plugins/slack/config`.
+
+**NOTE**: Due to [check token substituion][9], supplying a template value such
+as for `description-template` as a check annotation requires that you place the
+desired template as a [golang string literal][10] (enlcosed in backticks)
+within another template definition.  This does not apply to entity annotations.
+
+#### Examples
+
+To customize the channel for a given entity, you could use the following
+sensu-agent configuration snippet:
+
+```yml
+# /etc/sensu/agent.yml example
+annotations:
+  sensu.io/plugins/slack/config/channel: '#monitoring'
 ```
 
 ## Configuration
@@ -102,18 +164,6 @@ spec:
   - slack
 ```
 
-### Customizing configuration options via checks and entities
-
-All configuration options of this handler can be overridden via the annotations
-of checks and entities. For example, to customize the channel for a given
-entity, you could use the following sensu-agent configuration snippet:
-
-```yml
-# /etc/sensu/agent.yml example
-annotations:
-  sensu.io/plugins/slack/config/channel: '#monitoring'
-```
-
 ### Proxy Support
 
 This handler supports the use of the environment variables HTTP_PROXY,
@@ -124,7 +174,7 @@ either a complete URL or a "host[:port]", in which case the "http" scheme is ass
 ## Installing from source and contributing
 
 Download the latest version of the sensu-slack-handler from [releases][4],
-or create an executable script from this source.
+or create an executable from this source.
 
 ### Compiling
 
@@ -141,3 +191,6 @@ To contribute to this plugin, see [CONTRIBUTING](https://github.com/sensu/sensu-
 [4]: https://github.com/sensu/sensu-slack-handler/releases
 [5]: https://docs.sensu.io/sensu-go/latest/reference/secrets/
 [6]: https://bonsai.sensu.io/assets/sensu/sensu-slack-handler
+[7]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/
+[8]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/#use-env-for-secrets-management
+[9]: https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-process/handler-templates/

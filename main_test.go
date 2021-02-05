@@ -118,6 +118,7 @@ func TestSendMessage(t *testing.T) {
 
 	config.slackwebHookURL = apiStub.URL
 	config.slackChannel = "#test"
+	config.slackDescriptionTemplate = "{{ .Check.Output }}"
 	err := sendMessage(event)
 	assert.NoError(err)
 }
