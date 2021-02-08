@@ -6,8 +6,11 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.4.0] - 2021-02-08
+
 ### Changed
-- Update to use plugin sdk 0.8.0
+- Update to use plugin sdk 0.11.0
 - Mark --webhook-url argument as secret, so if set via SLACK_WEBHOOK_URL, value will not leak into usage message.
 - Q1 '21 handler maintenance:
   - Updated modules (go get -u && go mod tidy)
