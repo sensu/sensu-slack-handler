@@ -85,9 +85,9 @@ All arguments for this handler are tunable on a per entity or check basis based
 on annotations. The annotations keyspace for this handler is
 `sensu.io/plugins/slack/config`.
 
-**NOTE**: Due to [check token substituion][9], supplying a template value such
+**NOTE**: Due to [check token substituion][10], supplying a template value such
 as for `description-template` as a check annotation requires that you place the
-desired template as a [golang string literal][10] (enlcosed in backticks)
+desired template as a [golang string literal][11] (enlcosed in backticks)
 within another template definition.  This does not apply to entity annotations.
 
 #### Examples
@@ -194,3 +194,5 @@ To contribute to this plugin, see [CONTRIBUTING](https://github.com/sensu/sensu-
 [7]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/
 [8]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/#use-env-for-secrets-management
 [9]: https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-process/handler-templates/
+[10]: https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-schedule/checks/#check-token-substitution
+[11]: https://golang.org/ref/spec#String_literals
