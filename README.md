@@ -75,7 +75,7 @@ spec:
 ### Templates
 
 This handler provides options for using templates to populate the values
-provided by the event in the message sent via SNS. More information on
+provided by the event in the message sent via Slack. More information on
 template syntax and format can be found in [the documentation][9]
 
 
