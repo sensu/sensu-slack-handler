@@ -7,8 +7,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.5.0] - 2021-02-08
+
 ### Changed
 - Fixed README
+- Update to use plugin sdk v0.12: adds support for hostname function for use in template
 
 ## [1.4.0] - 2021-02-08
 
