@@ -90,16 +90,26 @@ as for `description-template` as a check annotation requires that you place the
 desired template as a [golang string literal][11] (enlcosed in backticks)
 within another template definition.  This does not apply to entity annotations.
 
+set a backend `SLACK_CHANNEL` environment variable to the `#monitoring-alerts` channel. 
+
+Runtime env_vars defined for a slack handler's definition in backend lose to event's entity annotations if latter are present.
+
 #### Examples
 
-To customize the channel for a given entity, you could use the following
-sensu-agent configuration snippet:
+If you use entity or check annotations to set arguments for the Sensu Slack Handler, the values in the annotations will override any values you set in the handler command or backend runtime environment variables.
+
+For example, imagine you configure the a Slack handler whose command sets the `--channel` flag to `#monitoring`.
+Suppose that for one particular entity, you want to use the Slack handler, but you want the entity's incidents to go to the `#special-alerts` Slack channel.
+You update the entity to include the following annotation:
 
 ```yml
 # /etc/sensu/agent.yml example
 annotations:
-  sensu.io/plugins/slack/config/channel: '#monitoring'
+  sensu.io/plugins/slack/config/channel: '#special-alerts'
 ```
+
+For this one entity, the Slack handler will send alerts to the `#special-alerts` channel (the entity annotation overrides the handler command flag).
+For all other entites, the Slack handler will send alerts to the `#monitoring` channel as configured in the handler command flag.
 
 ## Configuration
 
