@@ -94,9 +94,10 @@ Per-entity and per-check arguments set in entity and check annotations will over
 
 #### Examples
 
-Imagine you configure the a Slack handler whose command sets the `--channel` flag to `#monitoring`.
-Suppose that for one particular entity, you want to use the Slack handler, but you want the entity's incidents to go to the `#special-alerts` Slack channel.
-You update the entity to include the following annotation:
+Suppose that you configure the a Slack handler whose command sets the `--channel` flag to `#monitoring`.
+For one particular entity, you want to use the Slack handler, but you want the entity's incidents to go to the `#special-alerts` Slack channel.
+
+Update the entity definition to include an annotation that specifies the `#special-alerts` channel:
 
 ```yml
 # /etc/sensu/agent.yml example
