@@ -90,15 +90,11 @@ as for `description-template` as a check annotation requires that you place the
 desired template as a [golang string literal][11] (enlcosed in backticks)
 within another template definition.  This does not apply to entity annotations.
 
-set a backend `SLACK_CHANNEL` environment variable to the `#monitoring-alerts` channel. 
-
-Runtime env_vars defined for a slack handler's definition in backend lose to event's entity annotations if latter are present.
+Per-entity and per-check arguments set in entity and check annotations will override any arguments set in the handler command with flags or in backend runtime environment variables.
 
 #### Examples
 
-If you use entity or check annotations to set arguments for the Sensu Slack Handler, the values in the annotations will override any values you set in the handler command or backend runtime environment variables.
-
-For example, imagine you configure the a Slack handler whose command sets the `--channel` flag to `#monitoring`.
+Imagine you configure the a Slack handler whose command sets the `--channel` flag to `#monitoring`.
 Suppose that for one particular entity, you want to use the Slack handler, but you want the entity's incidents to go to the `#special-alerts` Slack channel.
 You update the entity to include the following annotation:
 
