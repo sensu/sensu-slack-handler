@@ -124,7 +124,7 @@ func checkArgs(_ *corev2.Event) error {
 	if icon := os.Getenv("SENSU_SLACK_ICON_URL"); icon != "" && config.slackIconURL == defaultIconURL {
 		config.slackIconURL = icon
 	}
-	if alert := os.Getenv("SENSU_SLACK_ALERT_CRITICAL"); alertCritical != "" && config.slackAlertCritical == defaultAlert {
+	if alert := os.Getenv("SENSU_SLACK_ALERT_CRITICAL"); alertCritical != "" && !config.slackAlertCritical {
 		config.slackAlertCritical, _ = strconv.ParseBool(alert)
 	}
 
@@ -180,7 +180,7 @@ func messageStatus(event *corev2.Event) string {
 	case 0:
 		return "Resolved"
 	case 2:
-		if config.slackAlertCritical == true {
+		if config.slackAlertCritical {
 			return "<!channel> Critical"
 		} else {
 			return "Critical"
