@@ -36,6 +36,7 @@ Available Commands:
   version     Print the version number of this plugin
 
 Flags:
+  -a, --alert-on-critical             The Slack notification will alert the channel with @channel
   -c, --channel string                The channel to post messages to (default "#general")
   -t, --description-template string   The Slack notification output template, in Golang text/template format (default "{{ .Check.Output }}")
   -h, --help                          help for sensu-slack-handler
@@ -53,6 +54,7 @@ Flags:
 |--username             |SLACK_USERNAME             |
 |--icon-url             |SLACK_ICON_URL             |
 |--description-template |SLACK_DESCRIPTION_TEMPLATE |
+|--alert-on-critical    |SENSU_SLACK_ALERT_CRITICAL |
 
 
 **Security Note:** Care should be taken to not expose the webhook URL for this handler by specifying it
