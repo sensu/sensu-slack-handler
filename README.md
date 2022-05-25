@@ -54,7 +54,7 @@ Flags:
 |--username             |SLACK_USERNAME             |
 |--icon-url             |SLACK_ICON_URL             |
 |--description-template |SLACK_DESCRIPTION_TEMPLATE |
-|--alert-on-critical    |SENSU_SLACK_ALERT_CRITICAL |
+|--alert-on-critical    |SLACK_ALERT_ON_CRITICAL    |
 
 
 **Security Note:** Care should be taken to not expose the webhook URL for this handler by specifying it

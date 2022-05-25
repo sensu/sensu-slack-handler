@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/bluele/slack"
@@ -95,7 +94,7 @@ var (
 		},
 		{
 			Path:      alertCritical,
-			Env:       "SLACK_ALERT_CRITICAL",
+			Env:       "SLACK_ALERT_ON_CRITICAL",
 			Argument:  alertCritical,
 			Shorthand: "a",
 			Default:   defaultAlert,
@@ -123,9 +122,6 @@ func checkArgs(_ *corev2.Event) error {
 	}
 	if icon := os.Getenv("SENSU_SLACK_ICON_URL"); icon != "" && config.slackIconURL == defaultIconURL {
 		config.slackIconURL = icon
-	}
-	if alert := os.Getenv("SENSU_SLACK_ALERT_CRITICAL"); alertCritical != "" && !config.slackAlertCritical {
-		config.slackAlertCritical, _ = strconv.ParseBool(alert)
 	}
 
 	if len(config.slackwebHookURL) == 0 {
