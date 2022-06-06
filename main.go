@@ -19,6 +19,7 @@ type HandlerConfig struct {
 	slackUsername            string
 	slackIconURL             string
 	slackDescriptionTemplate string
+	slackAlertCritical       bool
 }
 
 const (
@@ -27,11 +28,13 @@ const (
 	username            = "username"
 	iconURL             = "icon-url"
 	descriptionTemplate = "description-template"
+	alertCritical       = "alert-on-critical"
 
-	defaultChannel  = "#general"
-	defaultIconURL  = "https://www.sensu.io/img/sensu-logo.png"
-	defaultUsername = "sensu"
-	defaultTemplate = "{{ .Check.Output }}"
+	defaultChannel       = "#general"
+	defaultIconURL       = "https://www.sensu.io/img/sensu-logo.png"
+	defaultUsername      = "sensu"
+	defaultTemplate      = "{{ .Check.Output }}"
+	defaultAlert    bool = false
 )
 
 var (
@@ -88,6 +91,15 @@ var (
 			Default:   defaultTemplate,
 			Usage:     "The Slack notification output template, in Golang text/template format",
 			Value:     &config.slackDescriptionTemplate,
+		},
+		{
+			Path:      alertCritical,
+			Env:       "SLACK_ALERT_ON_CRITICAL",
+			Argument:  alertCritical,
+			Shorthand: "a",
+			Default:   defaultAlert,
+			Usage:     "The Slack notification will alert the channel with @channel",
+			Value:     &config.slackAlertCritical,
 		},
 	}
 )
@@ -164,7 +176,11 @@ func messageStatus(event *corev2.Event) string {
 	case 0:
 		return "Resolved"
 	case 2:
-		return "Critical"
+		if config.slackAlertCritical {
+			return "<!channel> Critical"
+		} else {
+			return "Critical"
+		}
 	default:
 		return "Warning"
 	}
@@ -175,6 +191,7 @@ func messageAttachment(event *corev2.Event) *slack.Attachment {
 	if err != nil {
 		fmt.Printf("%s: Error processing template: %s", config.PluginConfig.Name, err)
 	}
+
 	description = strings.Replace(description, `\n`, "\n", -1)
 	attachment := &slack.Attachment{
 		Title:    "Description",
