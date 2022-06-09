@@ -9,6 +9,7 @@ builds:
       - darwin
       - linux
       - windows
+      - freebsd
     goarch:
       - amd64
       - 386
@@ -28,6 +29,9 @@ builds:
       - linux_arm64
       - windows_386
       - windows_amd64
+      - freebsd_386
+      - freebsd_arm64
+      - freebsd_amd64
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_sha512-checksums.txt"
