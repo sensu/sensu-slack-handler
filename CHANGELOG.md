@@ -7,6 +7,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Indicate Unknown status when status code is 3 or higher
+
 ## [1.5.0] - 2021-03-022
 
 ### Changed

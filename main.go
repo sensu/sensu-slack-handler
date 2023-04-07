@@ -164,10 +164,12 @@ func messageColor(event *corev2.Event) string {
 	switch event.Check.Status {
 	case 0:
 		return "good"
+	case 1:
+		return "warning"
 	case 2:
 		return "danger"
 	default:
-		return "warning"
+		return "#000000"
 	}
 }
 
@@ -175,6 +177,8 @@ func messageStatus(event *corev2.Event) string {
 	switch event.Check.Status {
 	case 0:
 		return "Resolved"
+	case 1:
+		return "Warning"
 	case 2:
 		if config.slackAlertCritical {
 			return "<!channel> Critical"
@@ -182,7 +186,7 @@ func messageStatus(event *corev2.Event) string {
 			return "Critical"
 		}
 	default:
-		return "Warning"
+		return "Unknown"
 	}
 }
 

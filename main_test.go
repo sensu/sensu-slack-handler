@@ -84,6 +84,10 @@ func TestMessageColor(t *testing.T) {
 	event.Check.Status = 2
 	color = messageColor(event)
 	assert.Equal("danger", color)
+
+	event.Check.Status = 3
+	color = messageColor(event)
+	assert.Equal("#000000", color)
 }
 
 func TestMessageStatus(t *testing.T) {
@@ -101,6 +105,10 @@ func TestMessageStatus(t *testing.T) {
 	event.Check.Status = 2
 	status = messageStatus(event)
 	assert.Equal("Critical", status)
+
+	event.Check.Status = 3
+	status = messageStatus(event)
+	assert.Equal("Unknown", status)
 }
 
 func TestSendMessage(t *testing.T) {
