@@ -124,7 +124,8 @@ func TestSendMessage(t *testing.T) {
 
 func TestCheckArgs(t *testing.T) {
 	// Test case where webhook URL is missing
-	event := &corev2.Event{}
+	//event := &corev2.Event{}
+	event := corev2.FixtureEvent("entity1", "check1")
 	err := checkArgs(event)
 	fmt.Println("ERR is", err)
 	assert.NotNil(t, err.Error())
