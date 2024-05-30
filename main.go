@@ -187,7 +187,6 @@ func messageStatus(event *corev2.Event) string {
 	}
 }
 
-// Manisha found
 func messageAttachment(event *corev2.Event) slack.Attachment {
 	description, err := templates.EvalTemplate("description", config.slackDescriptionTemplate, event)
 	if err != nil {
@@ -221,7 +220,6 @@ func messageAttachment(event *corev2.Event) slack.Attachment {
 	return attachment
 }
 
-// Manisha found
 func sendMessage(event *corev2.Event) error {
 	hookmsg := &slack.WebhookMessage{
 		Attachments: []slack.Attachment{messageAttachment(event)},
@@ -231,17 +229,6 @@ func sendMessage(event *corev2.Event) error {
 	}
 
 	err := slack.PostWebhook(config.slackwebHookURL, hookmsg)
-
-	//
-	//hook := slack.NewWebHook(config.slackwebHookURL)
-	//
-	//
-	//err := hook.PostMessage(&slack.WebHookPostPayload{
-	//	Attachments: []*slack.Attachment{messageAttachment(event)},
-	//	Channel:     config.slackChannel,
-	//	IconUrl:     config.slackIconURL,
-	//	Username:    config.slackUsername,
-	//})
 	if err != nil {
 		return fmt.Errorf("Failed to send Slack message: %v ", err)
 	}
