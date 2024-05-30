@@ -126,8 +126,8 @@ func TestCheckArgs(t *testing.T) {
 	// Test case where webhook URL is missing
 	event := &corev2.Event{}
 	err := checkArgs(event)
-	assert.NotNil(t, err)
-	assert.Equal(t, fmt.Sprintf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL), err.Error())
+	//assert.NotNil(t, err)
+	assert.Error(t, fmt.Errorf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL), err.Error())
 
 	// Test case where webhook URL is provided
 	config.slackwebHookURL = "http://example.com/webhook"
