@@ -1,15 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
 )
 
 func TestFormattedEventAction(t *testing.T) {
@@ -123,17 +122,16 @@ func TestSendMessage(t *testing.T) {
 }
 
 func TestCheckArgs(t *testing.T) {
-	// Test case where webhook URL is missing
-	//event := &corev2.Event{}
 	assert := assert.New(t)
+	config := HandlerConfig{}
 	event := corev2.FixtureEvent("entity1", "check1")
-	err := checkArgs(event)
-	fmt.Println("ERR is", err)
-	assert.NotNil(t, err.Error())
-	assert.Equal(t, fmt.Sprintf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL), err.Error())
-
-	// Test case where webhook URL is provided
-	//config.slackwebHookURL = "http://example.com/webhook"
-	//err = checkArgs(event)
-	//assert.Nil(t, err)
+	config.slackDescriptionTemplate = "Sensu Event Details"
+	config.slackUsername = "Dummy user"
+	config.slackChannel = "Test"
+	config.slackIconURL = "https://www.sensu.io/img/sensu-logo.png"
+	config.slackwebHookURL = ""
+	assert.Error(checkArgs(event))
+	_ = os.Setenv("SLACK_WEBHOOK_URL", "http://example.com/webhook")
+	config.slackwebHookURL = os.Getenv("SLACK_WEBHOOK_URL")
+	assert.NoError(checkArgs(event))
 }
