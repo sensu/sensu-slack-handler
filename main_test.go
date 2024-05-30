@@ -127,7 +127,7 @@ func TestCheckArgs(t *testing.T) {
 	event := &corev2.Event{}
 	err := checkArgs(event)
 	fmt.Println("ERR is", err)
-	assert.NotNil(t, err)
+	assert.NotNil(t, err.Error())
 	assert.Equal(t, fmt.Sprintf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL), err.Error())
 
 	// Test case where webhook URL is provided
