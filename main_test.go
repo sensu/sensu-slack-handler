@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -121,17 +122,18 @@ func TestSendMessage(t *testing.T) {
 	assert.NoError(err)
 }
 
-//func TestCheckArgs(t *testing.T) {
-//	// Test case where webhook URL is missing
-//	//event := &corev2.Event{}
-//	event := corev2.FixtureEvent("entity1", "check1")
-//	err := checkArgs(event)
-//	fmt.Println("ERR is", err)
-//	assert.NotNil(t, err.Error())
-//	assert.Equal(t, fmt.Sprintf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL), err.Error())
-//
-//	// Test case where webhook URL is provided
-//	//config.slackwebHookURL = "http://example.com/webhook"
-//	//err = checkArgs(event)
-//	//assert.Nil(t, err)
-//}
+func TestCheckArgs(t *testing.T) {
+	// Test case where webhook URL is missing
+	//event := &corev2.Event{}
+	assert := assert.New(t)
+	event := corev2.FixtureEvent("entity1", "check1")
+	err := checkArgs(event)
+	fmt.Println("ERR is", err)
+	assert.NotNil(t, err.Error())
+	assert.Equal(t, fmt.Sprintf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL), err.Error())
+
+	// Test case where webhook URL is provided
+	//config.slackwebHookURL = "http://example.com/webhook"
+	//err = checkArgs(event)
+	//assert.Nil(t, err)
+}
