@@ -5,10 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bluele/slack"
+	//"github.com/bluele/slack"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
+	"github.com/slack-go/slack"
 )
 
 // HandlerConfig contains the Slack handler configuration
@@ -186,19 +187,20 @@ func messageStatus(event *corev2.Event) string {
 	}
 }
 
-func messageAttachment(event *corev2.Event) *slack.Attachment {
+// Manisha found
+func messageAttachment(event *corev2.Event) slack.Attachment {
 	description, err := templates.EvalTemplate("description", config.slackDescriptionTemplate, event)
 	if err != nil {
 		fmt.Printf("%s: Error processing template: %s", config.PluginConfig.Name, err)
 	}
 
 	description = strings.Replace(description, `\n`, "\n", -1)
-	attachment := &slack.Attachment{
+	attachment := slack.Attachment{
 		Title:    "Description",
 		Text:     description,
 		Fallback: formattedMessage(event),
 		Color:    messageColor(event),
-		Fields: []*slack.AttachmentField{
+		Fields: []slack.AttachmentField{
 			{
 				Title: "Status",
 				Value: messageStatus(event),
@@ -219,16 +221,29 @@ func messageAttachment(event *corev2.Event) *slack.Attachment {
 	return attachment
 }
 
+// Manisha found
 func sendMessage(event *corev2.Event) error {
-	hook := slack.NewWebHook(config.slackwebHookURL)
-	err := hook.PostMessage(&slack.WebHookPostPayload{
-		Attachments: []*slack.Attachment{messageAttachment(event)},
+	hookmsg := &slack.WebhookMessage{
+		Attachments: []slack.Attachment{messageAttachment(event)},
 		Channel:     config.slackChannel,
-		IconUrl:     config.slackIconURL,
+		IconURL:     config.slackIconURL,
 		Username:    config.slackUsername,
-	})
+	}
+
+	err := slack.PostWebhook(config.slackwebHookURL, hookmsg)
+
+	//
+	//hook := slack.NewWebHook(config.slackwebHookURL)
+	//
+	//
+	//err := hook.PostMessage(&slack.WebHookPostPayload{
+	//	Attachments: []*slack.Attachment{messageAttachment(event)},
+	//	Channel:     config.slackChannel,
+	//	IconUrl:     config.slackIconURL,
+	//	Username:    config.slackUsername,
+	//})
 	if err != nil {
-		return fmt.Errorf("Failed to send Slack message: %v", err)
+		return fmt.Errorf("Failed to send Slack message: %v ", err)
 	}
 
 	// FUTURE: send to AH

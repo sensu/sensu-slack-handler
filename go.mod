@@ -3,7 +3,6 @@ module github.com/sensu/sensu-slack-handler
 go 1.14
 
 require (
-	github.com/bluele/slack v0.0.0-20180528010058-b4b4d354a079
 	github.com/coreos/etcd v3.3.25+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -18,6 +17,7 @@ require (
 	github.com/sensu/sensu-go/api/core/v2 v2.6.0
 	github.com/sensu/sensu-go/types v0.5.0 // indirect
 	github.com/sirupsen/logrus v1.7.0 // indirect
+	github.com/slack-go/slack v0.13.0 // indirect
 	github.com/spf13/afero v1.5.1 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.1.1 // indirect
