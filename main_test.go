@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -108,7 +108,7 @@ func TestSendMessage(t *testing.T) {
 	event := corev2.FixtureEvent("entity1", "check1")
 
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, _ := ioutil.ReadAll(r.Body)
+		body, _ := io.ReadAll(r.Body)
 		expectedBody := `{"channel":"#test","attachments":[{"color":"good","fallback":"RESOLVED - entity1/check1:","title":"Description","text":"","fields":[{"title":"Status","value":"Resolved","short":false},{"title":"Entity","value":"entity1","short":true},{"title":"Check","value":"check1","short":true}]}]}`
 		assert.Equal(expectedBody, string(body))
 		w.WriteHeader(http.StatusOK)
@@ -125,7 +125,7 @@ func TestSendMessage(t *testing.T) {
 
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
-	file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-slack-")
+	file, _ := os.CreateTemp(os.TempDir(), "sensu-handler-slack-")
 	defer func() {
 		_ = os.Remove(file.Name())
 	}()
