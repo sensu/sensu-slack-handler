@@ -129,7 +129,6 @@ func TestCheckArgs(t *testing.T) {
 	config.slackUsername = "Dummy user"
 	config.slackChannel = "Test"
 	config.slackIconURL = "https://www.sensu.io/img/sensu-logo.png"
-	config.slackwebHookURL = ""
 	assert.Error(checkArgs(event))
 	_ = os.Setenv("SLACK_WEBHOOK_URL", "http://example.com/webhook")
 	config.slackwebHookURL = os.Getenv("SLACK_WEBHOOK_URL")
