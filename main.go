@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
-	//"github.com/bluele/slack"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/slack-go/slack"
+	"os"
+	"strings"
 )
 
 // HandlerConfig contains the Slack handler configuration
@@ -230,7 +228,7 @@ func sendMessage(event *corev2.Event) error {
 
 	err := slack.PostWebhook(config.slackwebHookURL, hookmsg)
 	if err != nil {
-		return fmt.Errorf("Failed to send Slack message: %v ", err)
+		return fmt.Errorf("Failed to send Slack message: %v", err)
 	}
 
 	// FUTURE: send to AH
