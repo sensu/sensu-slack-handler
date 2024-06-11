@@ -1,16 +1,14 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	corev2 "github.com/sensu/sensu-go/api/core/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-
-	corev2 "github.com/sensu/sensu-go/api/core/v2"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestFormattedEventAction(t *testing.T) {
@@ -108,8 +106,8 @@ func TestSendMessage(t *testing.T) {
 	event := corev2.FixtureEvent("entity1", "check1")
 
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, _ := ioutil.ReadAll(r.Body)
-		expectedBody := `{"channel":"#test","attachments":[{"color":"good","fallback":"RESOLVED - entity1/check1:","title":"Description","text":"","fields":[{"title":"Status","value":"Resolved","short":false},{"title":"Entity","value":"entity1","short":true},{"title":"Check","value":"check1","short":true}]}]}`
+		body, _ := io.ReadAll(r.Body)
+		expectedBody := `{"channel":"#test","attachments":[{"color":"good","fallback":"RESOLVED - entity1/check1:","title":"Description","fields":[{"title":"Status","value":"Resolved","short":false},{"title":"Entity","value":"entity1","short":true},{"title":"Check","value":"check1","short":true}],"blocks":null}],"replace_original":false,"delete_original":false}`
 		assert.Equal(expectedBody, string(body))
 		w.WriteHeader(http.StatusOK)
 		_, err := w.Write([]byte(`{"ok": true}`))
@@ -123,34 +121,15 @@ func TestSendMessage(t *testing.T) {
 	assert.NoError(err)
 }
 
-func TestMain(t *testing.T) {
+func TestCheckArgs(t *testing.T) {
 	assert := assert.New(t)
-	file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-slack-")
-	defer func() {
-		_ = os.Remove(file.Name())
-	}()
-
+	config := HandlerConfig{}
 	event := corev2.FixtureEvent("entity1", "check1")
-	eventJSON, _ := json.Marshal(event)
-	_, err := file.WriteString(string(eventJSON))
-	require.NoError(t, err)
-	require.NoError(t, file.Sync())
-	_, err = file.Seek(0, 0)
-	require.NoError(t, err)
-	os.Stdin = file
-	requestReceived := false
-
-	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestReceived = true
-		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte(`{"ok": true}`))
-		require.NoError(t, err)
-	}))
-
-	oldArgs := os.Args
-	os.Args = []string{"slack", "-w", apiStub.URL}
-	defer func() { os.Args = oldArgs }()
-
-	main()
-	assert.True(requestReceived)
+	config.slackDescriptionTemplate = "Sensu Event Details"
+	config.slackUsername = "Dummy user"
+	config.slackChannel = "Test"
+	config.slackIconURL = "https://www.sensu.io/img/sensu-logo.png"
+	_ = os.Setenv("SLACK_WEBHOOK_URL", "http://example.com/webhook")
+	config.slackwebHookURL = os.Getenv("SLACK_WEBHOOK_URL")
+	assert.NoError(checkArgs(event))
 }

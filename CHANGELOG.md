@@ -7,6 +7,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.0] - 2024-05-30
+
+### Changed
+- Update the slack dependent sdk from "github.com/bluele/slack" to "github.com/slack-go/slack" 
+
 ## [1.5.0] - 2021-03-022
 
 ### Changed
