@@ -7,6 +7,11 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.6.2] - 2025-02-10
+
+### Added
+- Support for darwin_arm64 build for assets.
+
 ## [1.6.0] - 2024-05-30
 
 ### Changed
