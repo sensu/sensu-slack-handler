@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/slack-go/slack"
-	"os"
-	"strings"
 )
 
 // HandlerConfig contains the Slack handler configuration
@@ -188,10 +189,10 @@ func messageStatus(event *corev2.Event) string {
 func messageAttachment(event *corev2.Event) slack.Attachment {
 	description, err := templates.EvalTemplate("description", config.slackDescriptionTemplate, event)
 	if err != nil {
-		fmt.Printf("%s: Error processing template: %s", config.PluginConfig.Name, err)
+		fmt.Printf("%s: Error processing template: %s", config.Name, err)
 	}
 
-	description = strings.Replace(description, `\n`, "\n", -1)
+	description = strings.ReplaceAll(description, `\n`, "\n")
 	attachment := slack.Attachment{
 		Title:    "Description",
 		Text:     description,
@@ -228,7 +229,7 @@ func sendMessage(event *corev2.Event) error {
 
 	err := slack.PostWebhook(config.slackwebHookURL, hookmsg)
 	if err != nil {
-		return fmt.Errorf("Failed to send Slack message: %v", err)
+		return fmt.Errorf("failed to send Slack message: %v", err)
 	}
 
 	// FUTURE: send to AH
